@@ -103,32 +103,36 @@ var loader = new THREE.ColladaLoader();
 */
 //THIS UPLOADS YOUR PHOTOS. NEEDS TO BE A LOOP DOE
 
-var counter = 30;
-var paintings = [counter];
+var num_of_paintings = 30;
+var paintings = [];
+for(var i = 0; i < num_of_paintings-1; i++){
+	(function(i) {
+		var artwork = new Image();
+		var ratiow = 0;
+		var ratioh = 0;
 
-var artwork = new Image();
-var ratiow = 0;
-var ratioh = 0;
+		artwork.onload = function(){
 
+		ratiow = artwork.width / artwork.width;
+		ratioh = artwork.height / artwork.width;
+		// plane for artwork
+		var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
+		plane.overdraw = true;
+		plane.position.set(i, 1 , 0);
+		scene.add(plane);
+		}
+		var source = './img/Artworks/' + (i+1).toString() + '.jpg';
+		console.log(source);
+		artwork.src = source;
+		var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
+		map:THREE.ImageUtils.loadTexture(artwork.src)
+		});
 
-artwork.onload = function(){
-
-ratiow = artwork.width / artwork.width;
-ratioh = artwork.height / artwork.width;
-// plane for artwork
-var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
-plane.overdraw = true;
-plane.position.set(0, 1 , 0);
-scene.add(plane);
+		img.map.needsUpdate = true; //ADDED
+	}(i))
 }
-artwork.src = 'img/Artworks/' + counter + '.jpg';
-var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
-map:THREE.ImageUtils.loadTexture(artwork.src)
-});
 
-img.map.needsUpdate = true; //ADDED
-
-
+//SPECIAL THANKS TO MATT CONDON FOR THE ABOVE CODE HE IS A LIFE SAVER. MUCH LOVEEEEEEEEEEE.
 
 
 
