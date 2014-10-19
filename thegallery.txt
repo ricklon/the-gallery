@@ -1,0 +1,16 @@
+Immersive 3D Art Gallery using ThreeJS. 
+
+Art gallery is automated based on parameters.
+
+Using the following API's:
+	Clarifai: Return related images or similar images
+	NYtimes: Search through articles to see if a given portrait was talked about
+	Artsy: Get the painting from here.
+	Met Open Collection: Get paintings from here.
+
+1. Set up ThreeJS.
+2. Camera movement to keys
+3. Input basic model objects
+4. Make base room
+5. Scrape Images.
+

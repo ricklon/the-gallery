@@ -1,0 +1,134 @@
+<html>
+<head>
+		<meta http-equiv="content-type" content="text/html" charset=ISO-8859-1">
+		<!-- Optimizing for mobile -->
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>The Gallery</title>
+		<style>canvas { width: 100%; height: 100% }</style>
+		<style type="text/css">
+			body {
+			/* Hide the scrollbars */
+			overflow: hidden;
+			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+			font-weight: 300;
+			color: #666670;
+			}
+		</style>
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script> 
+</head>
+
+
+<body>
+<div id="overlaytext" style="position: absolute; top: 15px; left: 15px;">
+Controls: <br/>
+Arrow keys to move around<br/>
+WASD to look around<br/>
+Scroll to zoom<br/>
+Enter to perform action
+</div>
+
+<script>
+var render;
+if(!(Detector.webgl)) //if no support for WebGL
+{
+	alert("Your browser does not support WebGL :(");
+}
+else {
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer({antialias:false}); //antialias set to true if not taxing
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor( 0xffffff, 1); //background color
+document.body.appendChild(renderer.domElement);
+
+//may not need it....
+var mainLight = new THREE.AmbientLight(0x101010, 1.0); // lights whole world, but no shadows
+mainLight.position = camera.position; //constantly updated(?)
+scene.add(mainLight);
+
+//Akin to sun, lights the whole world
+var topLight = new THREE.DirectionalLight(0xdddddd, 1.0);
+topLight.position.y = 15;
+scene.add(topLight);
+
+var geometry = new THREE.BoxGeometry(1,1,1);
+var material = new THREE.MeshBasicMaterial({color: 0x0070aa});
+var cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+
+
+camera.position.z = 5;
+
+
+//Event listener for when keys are pressed.
+//events are passed to the function onDocumentKeyDown
+document.addEventListener("keydown", onDocumentKeyDown, false);
+
+var xspeed = 0.0;
+var zspeed = 0.0;
+
+//When a key is pushed down, execute this event
+function onDocumentKeyDown(event){
+	//gets the key pressed
+	var keyCode = event.which;
+
+	console.log(keyCode); //check console for key
+
+
+	/* POV CONTROLS NEED TO BE LOCAL, BASED ON CURRENT ORIENTATION OF CAMERA
+	NOT ON THE WORLD ORIENTATION OF CAMERA */
+
+	//POV CONTROLS
+	//right arrow key
+	if(keyCode == 39) {
+	camera.position.x += 0.05;
+	}
+	//left arrow key
+	else if (keyCode == 37){
+	camera.position.x -= 0.05;
+	}
+	//up arrow key
+	else if (keyCode == 38) {
+	camera.position.z -= 0.05;
+	}
+	//down arrow key
+	else if (keyCode == 40){
+	camera.position.z += 0.05;
+	}
+
+	//CAMERA ROTATION CONTROLS
+	//D Key
+	if(keyCode == 68) {
+	camera.rotation.y -= 0.05;
+	}
+	//A Key
+	else if (keyCode == 65){
+	camera.rotation.y += 0.05;
+	}
+	//W Key
+	else if (keyCode == 87) {
+	camera.rotation.x += 0.05;
+	}
+	//S Key
+	else if (keyCode == 83){
+	camera.rotation.x -= 0.05;
+	}
+}
+
+var render = function () {
+requestAnimationFrame(render); //recursive function based on browsers' inner timer
+
+cube.rotation.x += 0.01;
+cube.rotation.y += 0.01;
+
+renderer.render(scene, camera);
+};
+
+render();
+}
+</script>
+</body>
+</html>
