@@ -8,6 +8,8 @@
 		<style>canvas { width: 100%; height: 100% }</style>
 		<style type="text/css">
 			body {
+			margin: 0px;
+			padding: 0px;
 			/* Hide the scrollbars */
 			overflow: hidden;
 			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
@@ -26,8 +28,6 @@
 Controls: <br/>
 Arrow keys to move around<br/>
 WASD to look around<br/>
-Scroll to zoom<br/>
-Enter to perform action
 </div>
 
 <script>
@@ -46,7 +46,7 @@ var yRotation = 0.0;
 var xSpeed = 0.0; //camera's velocity/accel for rotation
 var ySpeed = 0.0;
 var xTranslation = 0.0; //camera's translation
-var zTranslation = 5.0;
+var zTranslation = 2.0;
 var xSpeedT = 0.0; //camera's translation vel/accel
 var zSpeedT = 0.0;
 
@@ -62,7 +62,7 @@ camera.updateProjectionMatrix();
 
 
 
-var renderer = new THREE.WebGLRenderer({antialias:true}); //antialias set to true if not taxing
+var renderer = new THREE.WebGLRenderer({antialias:false}); //antialias set to true if not taxing
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor( 0xffffff, 1); //background color
 document.body.appendChild(renderer.domElement);
@@ -118,7 +118,16 @@ for(var i = 0; i < num_of_paintings-1; i++){
 		// plane for artwork
 		var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 		plane.overdraw = true;
-		plane.position.set(i, 1 , 0);
+		if(i <= Math.floor(num_of_paintings/2))
+		{
+		plane.position.set(i-Math.floor(num_of_paintings/4), 1 , 0);
+		}
+		else
+		{
+		plane.position.set(i-(15+Math.floor(num_of_paintings/4)), 1, 4);
+		plane.rotation.y = Math.PI;
+		}
+
 		scene.add(plane);
 		}
 		var source = './img/Artworks/' + (i+1).toString() + '.jpg';
@@ -132,7 +141,7 @@ for(var i = 0; i < num_of_paintings-1; i++){
 	}(i))
 }
 
-//SPECIAL THANKS TO MATT CONDON FOR THE ABOVE CODE HE IS A LIFE SAVER. MUCH LOVEEEEEEEEEEE.
+//SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. MUCH LOVEEEEEEEEEEE.
 
 
 
@@ -168,27 +177,27 @@ function onDocumentKeyDown(event){
 	//POV CONTROLS
 	//right arrow key
 	if(keyCode == 39) {
-		if(xSpeedT <= 0.020)
+		if(xSpeedT <= 0.025)
 		{
 		xSpeedT += 0.0025;
 		}
 	}
 	//left arrow key
 	else if (keyCode == 37){
-		if(xSpeedT >= -0.020)
+		if(xSpeedT >= -0.025)
 		{
 		xSpeedT -= 0.0025;
 		}
 	}
 	//up arrow key
 	else if (keyCode == 38) {
-		if(zSpeedT >= -0.020){
+		if(zSpeedT >= -0.025){
 		zSpeedT -= 0.0025;
 		}
 	}
 	//down arrow key
 	else if (keyCode == 40){
-		if(zSpeedT <= 0.020)
+		if(zSpeedT <= 0.025)
 		{
 		zSpeedT += 0.0025;
 		}
@@ -198,20 +207,20 @@ function onDocumentKeyDown(event){
 	//PROBLEMS: ROTATION BASED ON RADIANS. DOES NOT RESET TO 0 WHEN 2PI COVERED
 	//D Key
 	if(keyCode == 68) {
-			if(ySpeed >= -0.01)
+			if(ySpeed >= -0.015)
 			{
 			ySpeed -= 0.0025;
 			}
 	}
 	//A Key
 	else if (keyCode == 65){
-		if(ySpeed <= 0.01) {
+		if(ySpeed <= 0.015) {
 		ySpeed += 0.0025;
 	}
 	}
 	//W Key
 	else if (keyCode == 87) {
-		if(xSpeed <= 0.01) // || camera.rotation.x < .25 || camera.rotation.x > -.25)
+		if(xSpeed <= 0.015) // || camera.rotation.x < .25 || camera.rotation.x > -.25)
 		{
 		xSpeed += 0.0025;
 		}
@@ -225,7 +234,7 @@ function onDocumentKeyDown(event){
 	//S Key
 	else if (keyCode == 83){
 		//CURRENTLY LIMITING SPEED TO .01
-		if(xSpeed >= -0.01) // || camera.rotation.x > -.25 || camera.rotation.x < .25)
+		if(xSpeed >= -0.015) // || camera.rotation.x > -.25 || camera.rotation.x < .25)
 		{
 		xSpeed -= 0.0025;
 		}
