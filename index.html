@@ -37,7 +37,19 @@ if(!(Detector.webgl)) //if no support for WebGL
 }
 else {
 var scene = new THREE.Scene();
+
+
+
+
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var xRotation = 0.0;
+var yRotation = 0.0;
+var xSpeed = 0.0;
+var ySpeed = 0.0;
+
+
+
+
 var renderer = new THREE.WebGLRenderer({antialias:false}); //antialias set to true if not taxing
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor( 0xffffff, 1); //background color
@@ -67,15 +79,17 @@ camera.position.z = 5;
 //events are passed to the function onDocumentKeyDown
 document.addEventListener("keydown", onDocumentKeyDown, false);
 
-var xspeed = 0.0;
-var zspeed = 0.0;
 
 //When a key is pushed down, execute this event
 function onDocumentKeyDown(event){
 	//gets the key pressed
 	var keyCode = event.which;
 
-	console.log(keyCode); //check console for key
+	console.log(keyCode); //Use P to display whatever you want
+	if(keyCode == 80)
+	{
+		console.log(camera.rotation.x);
+	}
 
 
 	/* POV CONTROLS NEED TO BE LOCAL, BASED ON CURRENT ORIENTATION OF CAMERA
@@ -84,37 +98,62 @@ function onDocumentKeyDown(event){
 	//POV CONTROLS
 	//right arrow key
 	if(keyCode == 39) {
-	camera.position.x += 0.05;
+	camera.translateX(0.05);
 	}
 	//left arrow key
 	else if (keyCode == 37){
-	camera.position.x -= 0.05;
+	camera.translateX(-0.05);
 	}
 	//up arrow key
 	else if (keyCode == 38) {
-	camera.position.z -= 0.05;
+	camera.translateZ(-0.05);
 	}
 	//down arrow key
 	else if (keyCode == 40){
-	camera.position.z += 0.05;
+	camera.translateZ(0.05);
 	}
 
 	//CAMERA ROTATION CONTROLS
+	//PROBLEMS: ROTATION BASED ON RADIANS. DOES NOT RESET TO 0 WHEN 2PI COVERED
 	//D Key
 	if(keyCode == 68) {
-	camera.rotation.y -= 0.05;
+			if(ySpeed >= -0.01)
+			{
+			ySpeed -= 0.0025;
+			}
 	}
 	//A Key
 	else if (keyCode == 65){
-	camera.rotation.y += 0.05;
+		if(ySpeed <= 0.01) {
+		ySpeed += 0.0025;
+	}
 	}
 	//W Key
 	else if (keyCode == 87) {
-	camera.rotation.x += 0.05;
+		if(xSpeed <= 0.01) // || camera.rotation.x < .25 || camera.rotation.x > -.25)
+		{
+		xSpeed += 0.0025;
+		}
+		/*
+		else 
+		{
+		xSpeed = 0.0;
+		}
+		*/
 	}
 	//S Key
 	else if (keyCode == 83){
-	camera.rotation.x -= 0.05;
+		//CURRENTLY LIMITING SPEED TO .01
+		if(xSpeed >= -0.01) // || camera.rotation.x > -.25 || camera.rotation.x < .25)
+		{
+		xSpeed -= 0.0025;
+		}
+		/*
+		else
+		{
+		xSpeed = 0.0;
+		}
+		*/
 	}
 }
 
@@ -123,6 +162,13 @@ requestAnimationFrame(render); //recursive function based on browsers' inner tim
 
 cube.rotation.x += 0.01;
 cube.rotation.y += 0.01;
+
+
+//CAMERA MOVEMENT
+xRotation += xSpeed;
+yRotation += ySpeed;
+//x is up/down, y is left/right
+camera.rotation.set(xRotation, yRotation, 0.0);
 
 renderer.render(scene, camera);
 };
