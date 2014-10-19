@@ -1,6 +1,6 @@
 <html>
 <head>
-		<meta http-equiv="content-type" content="text/html" charset=ISO-8859-1">
+		<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
 		<!-- Optimizing for mobile -->
 		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 		
@@ -42,11 +42,24 @@ var scene = new THREE.Scene();
 
 
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-var xRotation = 0.0;
-var yRotation = 0.0;
-var xSpeed = 0.0;
+var xRotation = 0.0; //Camera's rotation
+var yRotation = 0.0; 
+var xSpeed = 0.0; //camera's velocity/accel for rotation
 var ySpeed = 0.0;
+var xTranslation = 0.0; //camera's translation
+var zTranslation = 5.0;
+var xSpeedT = 0.0; //camera's translation vel/accel
+var zSpeedT = 0.0;
 
+
+//Change the size of the canvas if resized
+window.addEventListener('resize', function() {
+var WIDTH = window.innerWidth,
+HEIGHT = window.innerHeight;
+renderer.setSize(WIDTH, HEIGHT);
+camera.aspect = WIDTH / HEIGHT;
+camera.updateProjectionMatrix();
+});
 
 
 
@@ -72,12 +85,21 @@ scene.add(cube);
 
 
 
-camera.position.z = 5;
+camera.position.z = zTranslation;
 
+window.onkeyup = keyup;
 
 //Event listener for when keys are pressed.
 //events are passed to the function onDocumentKeyDown
 document.addEventListener("keydown", onDocumentKeyDown, false);
+
+function keyup(){
+	console.log("Proceeding to delete");
+	xSpeed = 0;
+	ySpeed = 0;
+	xSpeedT = 0;
+	zSpeedT = 0;
+}
 
 
 //When a key is pushed down, execute this event
@@ -98,19 +120,30 @@ function onDocumentKeyDown(event){
 	//POV CONTROLS
 	//right arrow key
 	if(keyCode == 39) {
-	camera.translateX(0.05);
+		if(xSpeedT <= 0.020)
+		{
+		xSpeedT += 0.0025;
+		}
 	}
 	//left arrow key
 	else if (keyCode == 37){
-	camera.translateX(-0.05);
+		if(xSpeedT >= -0.020)
+		{
+		xSpeedT -= 0.0025;
+		}
 	}
 	//up arrow key
 	else if (keyCode == 38) {
-	camera.translateZ(-0.05);
+		if(zSpeedT >= -0.020){
+		zSpeedT -= 0.0025;
+		}
 	}
 	//down arrow key
 	else if (keyCode == 40){
-	camera.translateZ(0.05);
+		if(zSpeedT <= 0.020)
+		{
+		zSpeedT += 0.0025;
+		}
 	}
 
 	//CAMERA ROTATION CONTROLS
@@ -165,6 +198,13 @@ cube.rotation.y += 0.01;
 
 
 //CAMERA MOVEMENT
+xTranslation += xSpeedT;
+zTranslation += zSpeedT;
+//camera.position.set(xTranslation, 0.0, zTranslation);
+//the following translates with respect to local axis not Global like above!
+camera.translateX(xSpeedT);
+camera.translateZ(zSpeedT);
+
 xRotation += xSpeed;
 yRotation += ySpeed;
 //x is up/down, y is left/right
