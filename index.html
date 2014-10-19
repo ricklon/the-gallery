@@ -101,21 +101,31 @@ var loader = new THREE.ColladaLoader();
 		scene.add(dae);
 });
 */
-//IMG TEST
+//THIS UPLOADS YOUR PHOTOS. NEEDS TO BE A LOOP DOE
 
- var material = new THREE.MeshLambertMaterial({
-         map: THREE.ImageUtils.loadTexture('http://www.html5canvastutorials.com/demos/assets/crate.jpg')
-		       });
+var artwork = new Image();
+var ratiow = 0;
+var ratioh = 0;
 
-var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
-map:THREE.ImageUtils.loadTexture('http://i.imgur.com/vZ1sTu0.jpg')
-});
-img.map.needsUpdate = true; //ADDED
 
-// plane
-var plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1),material);
+artwork.onload = function(){
+
+ratiow = artwork.width / artwork.width;
+ratioh = artwork.height / artwork.width;
+// plane for artwork
+var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 plane.overdraw = true;
 scene.add(plane);
+}
+artwork.src = 'img/Artworks/1.jpg';
+var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
+map:THREE.ImageUtils.loadTexture(artwork.src)
+});
+
+
+img.map.needsUpdate = true; //ADDED
+
+
 
 
 
