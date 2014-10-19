@@ -45,7 +45,7 @@ def get_data(art_pages):
 
 
 index = 1
-while index < 2:
+while index < 2: #index counts how many pages to go through
 	page_urls = get_img_urls(index) #list of urls for a given page
 	get_data(page_urls) #gets info for every link in list
 	index = index + 1

@@ -62,7 +62,7 @@ camera.updateProjectionMatrix();
 
 
 
-var renderer = new THREE.WebGLRenderer({antialias:false}); //antialias set to true if not taxing
+var renderer = new THREE.WebGLRenderer({antialias:true}); //antialias set to true if not taxing
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor( 0xffffff, 1); //background color
 document.body.appendChild(renderer.domElement);
@@ -103,6 +103,9 @@ var loader = new THREE.ColladaLoader();
 */
 //THIS UPLOADS YOUR PHOTOS. NEEDS TO BE A LOOP DOE
 
+var counter = 30;
+var paintings = [counter];
+
 var artwork = new Image();
 var ratiow = 0;
 var ratioh = 0;
@@ -115,13 +118,13 @@ ratioh = artwork.height / artwork.width;
 // plane for artwork
 var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 plane.overdraw = true;
+plane.position.set(0, 1 , 0);
 scene.add(plane);
 }
-artwork.src = 'img/Artworks/1.jpg';
+artwork.src = 'img/Artworks/' + counter + '.jpg';
 var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
 map:THREE.ImageUtils.loadTexture(artwork.src)
 });
-
 
 img.map.needsUpdate = true; //ADDED
 
@@ -140,6 +143,7 @@ floor.position.y = -0.5;
 floor.rotation.x = Math.PI / 2;
 scene.add(floor);
 camera.position.z = zTranslation;
+camera.position.y = 1;
 
 
 //When a key is pushed down, execute this event
