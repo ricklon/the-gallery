@@ -92,7 +92,7 @@ var loader = new THREE.ColladaLoader();
 
 		var skin = collada.skins[ 0 ];
 
-		dae.position.set(0,0,0);//x,z,y- if you think in blender dimensions ;)
+		dae.position.set(0,0,2);//x,z,y- if you think in blender dimensions ;)
 		dae.scale.set(.5,.5,.5);
 
 		scene.add(dae);
@@ -219,7 +219,9 @@ camera.translateZ(zSpeedT);
 xRotation += xSpeed;
 yRotation += ySpeed;
 //x is up/down, y is left/right
-camera.rotation.set(xRotation, yRotation, 0.0);
+//camera.rotation.set(xRotation, yRotation, 0.0);
+camera.rotateX(xSpeed);
+camera.rotateY(ySpeed);
 
 renderer.render(scene, camera);
 };
