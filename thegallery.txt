@@ -16,7 +16,7 @@ DONE 1. Set up ThreeJS.
 	DONE d. Camera movement ONLY when pressing key
 3. Input basic model objects
 	DONE Import basic box model.
-	Plane Import Images
+	Plane Import Images - Paintings and Floor
 	Start modeling legit models:
 		Seats. Walls
 4. Make base room

@@ -40,8 +40,6 @@ else {
 var scene = new THREE.Scene();
 
 
-
-
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 var xRotation = 0.0; //Camera's rotation
 var yRotation = 0.0; 
@@ -81,23 +79,39 @@ cameraLight.position.y = camera.position.y + 3;
 cameraLight.position.x = camera.position.x;
 scene.add(cameraLight);
 
+
+
+
+
+//THE MODELS THE MODELS THE MODELS
+
 var loader = new THREE.ColladaLoader();
 
 		loader.options.convertUpAxis = true;
 
 		loader.load( 'test.dae', function ( collada ) {
-		//dummy1.dae
 
 		var dae = collada.scene;
 
 		var skin = collada.skins[ 0 ];
 
-		dae.position.set(0,0,2);//x,z,y- if you think in blender dimensions ;)
+		dae.position.set(0,0,2);
 		dae.scale.set(.5,.5,.5);
 
 		scene.add(dae);
-
 });
+
+
+// FLOOR
+var floorTexture = new THREE.ImageUtils.loadTexture('.img/MarbleFloor.jpg');
+floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+floorTexture.repeat.set( 10, 10 );
+var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
+var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.position.y = -0.5;
+floor.rotation.x = Math.PI / 2;
+scene.add(floor);
 
 camera.position.z = zTranslation;
 
@@ -195,7 +209,7 @@ function onDocumentKeyDown(event){
 document.addEventListener("keydown", onDocumentKeyDown, false);
 
 function keyup(){
-	console.log("Proceeding to delete");
+	console.log("Proceeding to reset");
 	xSpeed = 0;
 	ySpeed = 0;
 	xSpeedT = 0;
