@@ -17,6 +17,7 @@
 		</style>
 		<script src="js/three.min.js"></script>
 		<script src="js/Detector.js"></script> 
+		<script src="js/ColladaLoader.js"></script>
 </head>
 
 
@@ -68,38 +69,37 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor( 0xffffff, 1); //background color
 document.body.appendChild(renderer.domElement);
 
-//may not need it....
-var mainLight = new THREE.AmbientLight(0x101010, 1.0); // lights whole world, but no shadows
-mainLight.position = camera.position; //constantly updated(?)
-scene.add(mainLight);
-
 //Akin to sun, lights the whole world
 var topLight = new THREE.DirectionalLight(0xdddddd, 1.0);
 topLight.position.y = 15;
+topLight.position.z = 15;
 scene.add(topLight);
 
-var geometry = new THREE.BoxGeometry(1,1,1);
-var material = new THREE.MeshBasicMaterial({color: 0x0070aa});
-var cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+var cameraLight = new THREE.DirectionalLight(0xdddddd,1.0);
+cameraLight.position.z = camera.position.z;
+cameraLight.position.y = camera.position.y + 3;
+cameraLight.position.x = camera.position.x;
+scene.add(cameraLight);
 
+var loader = new THREE.ColladaLoader();
 
+		loader.options.convertUpAxis = true;
+
+		loader.load( 'test.dae', function ( collada ) {
+		//dummy1.dae
+
+		var dae = collada.scene;
+
+		var skin = collada.skins[ 0 ];
+
+		dae.position.set(0,0,0);//x,z,y- if you think in blender dimensions ;)
+		dae.scale.set(.5,.5,.5);
+
+		scene.add(dae);
+
+});
 
 camera.position.z = zTranslation;
-
-window.onkeyup = keyup;
-
-//Event listener for when keys are pressed.
-//events are passed to the function onDocumentKeyDown
-document.addEventListener("keydown", onDocumentKeyDown, false);
-
-function keyup(){
-	console.log("Proceeding to delete");
-	xSpeed = 0;
-	ySpeed = 0;
-	xSpeedT = 0;
-	zSpeedT = 0;
-}
 
 
 //When a key is pushed down, execute this event
@@ -190,12 +190,23 @@ function onDocumentKeyDown(event){
 	}
 }
 
+//Event listener for when keys are pressed.
+//events are passed to the function onDocumentKeyDown
+document.addEventListener("keydown", onDocumentKeyDown, false);
+
+function keyup(){
+	console.log("Proceeding to delete");
+	xSpeed = 0;
+	ySpeed = 0;
+	xSpeedT = 0;
+	zSpeedT = 0;
+}
+
+window.onkeyup = keyup;
+
+
 var render = function () {
 requestAnimationFrame(render); //recursive function based on browsers' inner timer
-
-cube.rotation.x += 0.01;
-cube.rotation.y += 0.01;
-
 
 //CAMERA MOVEMENT
 xTranslation += xSpeedT;
