@@ -95,12 +95,13 @@ var loader = new THREE.ColladaLoader();
 
 		var skin = collada.skins[ 0 ];
 
-		dae.position.set(0,0,2);
-		dae.scale.set(.5,.5,.5);
+		dae.position.set(0,0,-1);
+		dae.scale.set(.5,1,.5);
 
 		scene.add(dae);
 });
 */
+
 //THIS UPLOADS YOUR PHOTOS. NEEDS TO BE A LOOP DOE
 
 var num_of_paintings = 30;
@@ -120,7 +121,7 @@ for(var i = 0; i < num_of_paintings-1; i++){
 		plane.overdraw = true;
 		if(i <= Math.floor(num_of_paintings/2))
 		{
-		plane.position.set(i-Math.floor(num_of_paintings/4), 1 , 0);
+			plane.position.set(i-Math.floor(num_of_paintings/4 + 2), 1 , 0);
 		}
 		else
 		{
