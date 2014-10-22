@@ -22,9 +22,3 @@ DONE 1. Set up ThreeJS.
 4. Make base room
 5. Scrape Images.
 
-
-For Flam:
-Using the Artsy api, learn how to pull the images for a given search query.
-
-Function for Javascript with two parameters, Search Query, and image limits.
-Returns list of all images and their respective titles.

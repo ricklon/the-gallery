@@ -46,7 +46,7 @@ var yRotation = 0.0;
 var xSpeed = 0.0; //camera's velocity/accel for rotation
 var ySpeed = 0.0;
 var xTranslation = 0.0; //camera's translation
-var zTranslation = 2.0;
+var zTranslation = 2.5;
 var xSpeedT = 0.0; //camera's translation vel/accel
 var zSpeedT = 0.0;
 
@@ -121,11 +121,11 @@ for(var i = 0; i < num_of_paintings-1; i++){
 		plane.overdraw = true;
 		if(i <= Math.floor(num_of_paintings/2))
 		{
-			plane.position.set(i-Math.floor(num_of_paintings/4 + 2), 1 , 0);
+			plane.position.set(2*i - 2*Math.floor(num_of_paintings/4), 1 , 0);
 		}
 		else
 		{
-		plane.position.set(i-(15+Math.floor(num_of_paintings/4)), 1, 4);
+		plane.position.set(2*i - num_of_paintings - Math.floor(num_of_paintings/2), 1, 5);
 		plane.rotation.y = Math.PI;
 		}
 

@@ -6,7 +6,8 @@ count = 0
 
 main_url = 'http://www.metmuseum.org'
 root_url = 'http://www.metmuseum.org/collection/the-collection-online'
-search_term = 'Vincent+Van+Gogh' #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
+search_term = 'Claude+Monet' #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
+#search_term = 'Pablo+Picasso' #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
 image_toggle = '&amp;ao=on&amp;noqs=true' #show only artwork with images. Default is true
 collections_url = root_url + '/search?ft=' + search_term + image_toggle + '&rpp=30&pg='
 
