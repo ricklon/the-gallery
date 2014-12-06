@@ -17,7 +17,7 @@ response.end();
 return;
 }
 
-if (fs.statSync(filename).isDirectory()) filename += '/gallery.html';
+if (fs.statSync(filename).isDirectory()) filename += '/index.html';
 
 fs.readFile(filename, "binary", function(err, file) {
 if(err) {        
