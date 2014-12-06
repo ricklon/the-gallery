@@ -21,8 +21,6 @@ TODO:
 
 Structure:
 
-	loading screen(???)
-
 		---> gallery application.
 
 			---> search input for different artists ---> new gallery application

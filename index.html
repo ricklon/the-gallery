@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 		<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
@@ -5,33 +6,101 @@
 		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 		
 		<title>The Gallery</title>
-		<style>canvas { width: 100%; height: 100% }</style>
-		<style type="text/css">
-			body {
-			margin: 0px;
-			padding: 0px;
-			/* Hide the scrollbars */
-			overflow: hidden;
-			font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-			font-weight: 300;
-			color: #666670;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="./css/main.css" media="screen" />
 		<script src="js/three.min.js"></script>
 		<script src="js/Detector.js"></script> 
 		<script src="js/ColladaLoader.js"></script>
+		<script src="js/PointerLockControls.js"></script>
 </head>
 
 
 <body>
-<div id="overlaytext" style="position: absolute; top: 15px; left: 15px;">
-Controls: <br/>
-Arrow keys to move around<br/>
-WASD to look around<br/>
+
+<div id="blocker">
+	<div id="instructions">
+		<span> Click to Play </span>
+		<p> W,A,S,D or arrow keys = Move around, Mouse = Look around, Spacebar = Jump. </p>
+	</div>
 </div>
 
 <script>
-var render;
+	var render;
+	var controls;
+	//blocker displays the controls, and tells user to click on the screen to play
+	var blocker = document.getElementById('blocker');
+	var instructions = document.getElementById('instructions');
+
+	//check to make sure we have pointerLock capability in users browser
+	var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
+	if(havePointerLock) {
+		var element = document.body;
+		var pointerlockchange = function( event ) {
+			if(document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
+				controls.enabled = true;
+				blocker.style.display = 'none';
+			} else {
+				controls.enabled = false;
+
+				blocker.style.display = '-webkit-box';
+				blocker.style.display = '-moz-box';
+				blocker.style.display = 'box';
+
+				instructions.style.display = '';
+			}		
+		}
+		var pointerlockerror = function(event) { //event refers to any actions done by keyboard or mouse.
+			instructions.style.display = '';
+		}
+		
+		//adding listeners for the pointer lock change and for pointer lock error
+		document.addEventListener('pointerlockchange', pointerlockchange, false);
+		document.addEventListener('mozpointerlockchange', pointerlockchange, false);
+		document.addEventListener('webkitpointerlockchange',pointerlockchange, false);
+
+		document.addEventListener('pointerlockerror',pointerlockerror, false);
+		document.addEventListener('mozpointerlockerror',pointerlockerror, false);
+		document.addEventListener('webkitpointerlockerror',pointerlockerror, false);
+
+		//clicking on the screen should result in controls getting activated and blocker becoming hidden
+		instructions.addEventListener('click',function(event) {
+			instructions.style.display = 'none';
+			blocker.style.display = 'none';
+			
+			//asking browser to lock browser
+			element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+			if ( /Firefox/i.test( navigator.userAgent ) ) {
+
+				var fullscreenchange = function ( event ) {
+
+					if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+
+						document.removeEventListener( 'fullscreenchange', fullscreenchange );
+						document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+
+						element.requestPointerLock();
+					}			
+
+				}
+				//disables automatic transition to full screen, a default of disabling browser(???)
+				document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+				document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+
+				element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+
+				element.requestFullscreen();
+
+			} else {
+
+				element.requestPointerLock();
+
+			}
+
+		}, false );
+
+		} else {instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'; }
+
 if(!(Detector.webgl)) //if no support for WebGL
 {
 	alert("Your browser does not support WebGL :(");
@@ -39,16 +108,14 @@ if(!(Detector.webgl)) //if no support for WebGL
 else {
 var scene = new THREE.Scene();
 
-
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-var xRotation = 0.0; //Camera's rotation
-var yRotation = 0.0; 
-var xSpeed = 0.0; //camera's velocity/accel for rotation
-var ySpeed = 0.0;
-var xTranslation = 0.0; //camera's translation
-var zTranslation = 2.5;
-var xSpeedT = 0.0; //camera's translation vel/accel
-var zSpeedT = 0.0;
+
+var objects = [];
+
+controls = new THREE.PointerLockControls(camera);
+scene.add(controls.getObject());
+
+var raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
 
 
 //Change the size of the canvas if resized
@@ -59,7 +126,6 @@ renderer.setSize(WIDTH, HEIGHT);
 camera.aspect = WIDTH / HEIGHT;
 camera.updateProjectionMatrix();
 });
-
 
 
 var renderer = new THREE.WebGLRenderer({antialias:false}); //antialias set to true if not taxing
@@ -81,28 +147,7 @@ scene.add(cameraLight);
 
 
 
-
-
-//THE MODELS THE MODELS THE MODELS
-/*
-var loader = new THREE.ColladaLoader();
-
-		loader.options.convertUpAxis = true;
-
-		loader.load( 'test.dae', function ( collada ) {
-
-		var dae = collada.scene;
-
-		var skin = collada.skins[ 0 ];
-
-		dae.position.set(0,0,-1);
-		dae.scale.set(.5,1,.5);
-
-		scene.add(dae);
-});
-*/
-
-//THIS UPLOADS YOUR PHOTOS. NEEDS TO BE A LOOP DOE
+//THIS UPLOADS YOUR PHOTOS. 
 
 var num_of_paintings = 30;
 var paintings = [];
@@ -130,6 +175,7 @@ for(var i = 0; i < num_of_paintings-1; i++){
 		}
 
 		scene.add(plane);
+		objects.push(plane);
 		}
 		var source = './img/Artworks/' + (i+1).toString() + '.jpg';
 		console.log(source);
@@ -141,7 +187,6 @@ for(var i = 0; i < num_of_paintings-1; i++){
 		img.map.needsUpdate = true; //ADDED
 	}(i))
 }
-
 //SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. MUCH LOVEEEEEEEEEEE.
 
 
@@ -156,130 +201,20 @@ var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.position.y = -0.5;
 floor.rotation.x = Math.PI / 2;
 scene.add(floor);
-camera.position.z = zTranslation;
-camera.position.y = 1;
-
-
-//When a key is pushed down, execute this event
-function onDocumentKeyDown(event){
-	//gets the key pressed
-	var keyCode = event.which;
-
-	console.log(keyCode); //Use P to display whatever you want
-	if(keyCode == 80)
-	{
-		console.log(camera.rotation.x);
-	}
-
-
-	/* POV CONTROLS NEED TO BE LOCAL, BASED ON CURRENT ORIENTATION OF CAMERA
-	NOT ON THE WORLD ORIENTATION OF CAMERA */
-
-	//POV CONTROLS
-	//right arrow key
-	if(keyCode == 39) {
-		if(xSpeedT <= 0.025)
-		{
-		xSpeedT += 0.0025;
-		}
-	}
-	//left arrow key
-	else if (keyCode == 37){
-		if(xSpeedT >= -0.025)
-		{
-		xSpeedT -= 0.0025;
-		}
-	}
-	//up arrow key
-	else if (keyCode == 38) {
-		if(zSpeedT >= -0.025){
-		zSpeedT -= 0.0025;
-		}
-	}
-	//down arrow key
-	else if (keyCode == 40){
-		if(zSpeedT <= 0.025)
-		{
-		zSpeedT += 0.0025;
-		}
-	}
-
-	//CAMERA ROTATION CONTROLS
-	//PROBLEMS: ROTATION BASED ON RADIANS. DOES NOT RESET TO 0 WHEN 2PI COVERED
-	//D Key
-	if(keyCode == 68) {
-			if(ySpeed >= -0.015)
-			{
-			ySpeed -= 0.0025;
-			}
-	}
-	//A Key
-	else if (keyCode == 65){
-		if(ySpeed <= 0.015) {
-		ySpeed += 0.0025;
-	}
-	}
-	//W Key
-	else if (keyCode == 87) {
-		if(xSpeed <= 0.015) // || camera.rotation.x < .25 || camera.rotation.x > -.25)
-		{
-		xSpeed += 0.0025;
-		}
-		/*
-		else 
-		{
-		xSpeed = 0.0;
-		}
-		*/
-	}
-	//S Key
-	else if (keyCode == 83){
-		//CURRENTLY LIMITING SPEED TO .01
-		if(xSpeed >= -0.015) // || camera.rotation.x > -.25 || camera.rotation.x < .25)
-		{
-		xSpeed -= 0.0025;
-		}
-		/*
-		else
-		{
-		xSpeed = 0.0;
-		}
-		*/
-	}
-}
-
-//Event listener for when keys are pressed.
-//events are passed to the function onDocumentKeyDown
-document.addEventListener("keydown", onDocumentKeyDown, false);
-
-function keyup(){
-	console.log("Proceeding to reset");
-	xSpeed = 0;
-	ySpeed = 0;
-	xSpeedT = 0;
-	zSpeedT = 0;
-}
-
-window.onkeyup = keyup;
 
 
 var render = function () {
-requestAnimationFrame(render); //recursive function based on browsers' inner timer
+requestAnimationFrame(render); 
+controls.isOnObject(false);
+raycaster.ray.origin.copy(controls.getObject().position);
+raycaster.ray.origin.y -= 10;
 
-//CAMERA MOVEMENT
-xTranslation += xSpeedT;
-zTranslation += zSpeedT;
-//camera.position.set(xTranslation, 0.0, zTranslation);
-//the following translates with respect to local axis not Global like above!
-camera.translateX(xSpeedT);
-camera.translateZ(zSpeedT);
+var intersections = raycaster.intersectObject(objects);
+if(intersections.length > 0) {
+	controls.isOnObject(true);
+}
 
-xRotation += xSpeed;
-yRotation += ySpeed;
-//x is up/down, y is left/right
-//camera.rotation.set(xRotation, yRotation, 0.0);
-camera.rotateX(xSpeed);
-camera.rotateY(ySpeed);
+controls.update();
 
 renderer.render(scene, camera);
 };
