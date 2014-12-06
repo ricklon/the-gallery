@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
+		<!-- Optimizing for mobile -->
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+		
+		<title>The Gallery</title>
+
+		<link rel="stylesheet" type="text/css" href="./css/main.css" media="screen" />
+		
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script> 
+		<script src="js/ColladaLoader.js"></script>
+		<script src="js/PointerLockControls.js"></script>
+</head>
+
+
+<body>
+
+<div id="blocker">
+	<div id="instructions">
+		<span id="title"> Click to Play </span>
+		<br>
+		<span id="sub">W,A,S,D = Move around, Mouse = Look around, Space = Jump.</span>
+	</div>
+</div>
+
+<script>
+	if(!(Detector.webgl)) //if no support for WebGL
+	{
+		alert("Your browser does not support WebGL!");
+	}
+	else {
+	var UNIV = {}; //universal controllers under global variable UNIV
+	UNIV.controls;
+	//blocker displays the controls, and tells user to click on the screen to play
+	UNIV.blocker = document.getElementById('blocker');
+	UNIV.instructions = document.getElementById('instructions');
+
+	//check to make sure we have pointerLock capability in users browser
+	UNIV.havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
+	if(UNIV.havePointerLock) {
+		UNIV.element = document.body;
+		UNIV.pointerlockchange = function( event ) {
+			if(document.pointerLockElement === UNIV.element || document.mozPointerLockElement === UNIV.element || document.webkitPointerLockElement === UNIV.element) {
+				UNIV.controls.enabled = true;
+				UNIV.blocker.style.display = 'none';
+			} else {
+				UNIV.controls.enabled = false;
+
+				UNIV.blocker.style.display = '-webkit-box';
+				UNIV.blocker.style.display = '-moz-box';
+				UNIV.blocker.style.display = 'box';
+
+				UNIV.instructions.style.display = '';
+			}		
+		}
+		UNIV.pointerlockerror = function(event) { //event refers to any actions done by keyboard or mouse.
+		UNIV.instructions.style.display = '';
+		}
+		
+		//adding listeners for the pointer lock change and for pointer lock error
+		document.addEventListener('pointerlockchange', UNIV.pointerlockchange, false);
+		document.addEventListener('mozpointerlockchange', UNIV.pointerlockchange, false);
+		document.addEventListener('webkitpointerlockchange',UNIV.pointerlockchange, false);
+
+		document.addEventListener('pointerlockerror',UNIV.pointerlockerror, false);
+		document.addEventListener('mozpointerlockerror',UNIV.pointerlockerror, false);
+		document.addEventListener('webkitpointerlockerror',UNIV.pointerlockerror, false);
+
+		//clicking on the screen should result in controls getting activated and blocker becoming hidden
+		UNIV.instructions.addEventListener('click',function(event) {
+			UNIV.instructions.style.display = 'none';
+			UNIV.blocker.style.display = 'none';
+			
+			//asking browser to lock browser
+			UNIV.element.requestPointerLock = UNIV.element.requestPointerLock || UNIV.element.mozRequestPointerLock || UNIV.element.webkitRequestPointerLock;
+
+			if ( /Firefox/i.test( navigator.userAgent ) ) {
+				var fullscreenchange = function ( event ) {
+					if ( document.fullscreenElement === UNIV.element || document.mozFullscreenElement === UNIV.element || document.mozFullScreenElement === UNIV.element ) {
+
+						document.removeEventListener( 'fullscreenchange', fullscreenchange );
+						document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+
+						UNIV.element.requestPointerLock();
+					}			
+				}
+				//disables automatic transition to full screen, a default of disabling browser(???)
+				document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+				document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+
+				UNIV.element.requestFullscreen = UNIV.element.requestFullscreen || UNIV.element.mozRequestFullscreen || UNIV.element.mozRequestFullScreen || UNIV.element.webkitRequestFullscreen;
+
+				UNIV.element.requestFullscreen();
+			} else {
+				UNIV.element.requestPointerLock();
+			}
+		}, false );
+
+		} else {instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'; }
+
+
+//////////////////////////////////////MAIN SCENE////////////////////////////////////////
+	var GALLERY = {}; //objects that pertain to our main scene are under global var GALLERY
+	
+	GALLERY.scene = new THREE.Scene();
+	
+	GALLERY.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+	
+	GALLERY.objects = [];
+	
+	UNIV.controls = new THREE.PointerLockControls(GALLERY.camera);
+	
+	GALLERY.scene.add(UNIV.controls.getObject());
+	
+	GALLERY.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+	
+	//Need a toggle for antialias
+	GALLERY.renderer = new THREE.WebGLRenderer({antialias:false}); 
+	GALLERY.renderer.setSize(window.innerWidth, window.innerHeight);
+	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
+	document.body.appendChild(GALLERY.renderer.domElement);
+
+	//Change the size of the canvas if resized
+	window.addEventListener('resize', function() {
+		UNIV.WIDTH = window.innerWidth,
+		UNIV.HEIGHT = window.innerHeight;
+		GALLERY.renderer.setSize(UNIV.WIDTH, UNIV.HEIGHT);
+		GALLERY.camera.aspect = UNIV.WIDTH / UNIV.HEIGHT;
+		GALLERY.camera.updateProjectionMatrix();
+	});
+
+
+	////////////////////LIGHTING////////////////////
+	//Akin to sun, lights the whole world
+	GALLERY.topLight = new THREE.DirectionalLight(0xdddddd, 1.0);
+	GALLERY.topLight.position.y = 15;
+	GALLERY.topLight.position.z = 15;
+	GALLERY.scene.add(GALLERY.topLight);
+
+
+	/////////////////PAINTINGS//////////////////////
+	var num_of_paintings = 30;
+	var paintings = [];
+	for(var i = 0; i < num_of_paintings-1; i++){
+		(function(i) {
+			var artwork = new Image();
+			var ratiow = 0;
+			var ratioh = 0;
+
+			artwork.onload = function(){
+
+			ratiow = artwork.width / artwork.width;
+			ratioh = artwork.height / artwork.width;
+			// plane for artwork
+			var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
+			plane.overdraw = true;
+			if(i <= Math.floor(num_of_paintings/2))
+			{
+				plane.position.set(2*i - 2*Math.floor(num_of_paintings/4), 1 , 0);
+			}
+			else
+			{
+				plane.position.set(2*i - num_of_paintings - Math.floor(num_of_paintings/2), 1, 5);
+				plane.rotation.y = Math.PI;
+			}
+
+			GALLERY.scene.add(plane);
+			GALLERY.objects.push(plane);
+			}
+			var source = './img/Artworks/' + (i+1).toString() + '.jpg';
+			console.log(source);
+			artwork.src = source;
+			var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
+			map:THREE.ImageUtils.loadTexture(artwork.src)
+			});
+
+			img.map.needsUpdate = true; //ADDED
+		}(i))
+	}
+	//SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. 
+
+
+
+	/////////////////FLOOR////////////////////////
+	var floorTexture = new THREE.ImageUtils.loadTexture( 'img/MarbleFloor1.jpg' );
+	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+	floorTexture.repeat.set( 10, 10 );
+	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+	floor.position.y = -0.5;
+	floor.rotation.x = Math.PI / 2;
+	GALLERY.scene.add(floor);
+
+
+
+	///////////////ANIMATION/////////////////////
+	var render = function () {
+		requestAnimationFrame(render); 
+		
+		UNIV.controls.isOnObject(false);
+		GALLERY.raycaster.ray.origin.copy(UNIV.controls.getObject().position);
+		GALLERY.raycaster.ray.origin.y -= 10;
+
+		var intersections = GALLERY.raycaster.intersectObject(GALLERY.objects);
+		if(intersections.length > 0) {
+			UNIV.controls.isOnObject(true);
+		}
+		UNIV.controls.update();
+
+		GALLERY.renderer.render(GALLERY.scene, GALLERY.camera);
+	};
+
+	render();
+} //closes else statement of webGL detector.
+</script>
+</body>
+</html>

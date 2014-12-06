@@ -2,20 +2,17 @@ theGallery
 ===========
 Online automated art gallery based on your search input.
 
+There is now a working prototype currently being hosted at owlsketch.github.io/the-gallery
+
 Want an automatically created gallery of your favorite artist?
 
 This program is based on two programs. A python web scraper, that gets the images of your favorite artist from http://www.metmuseum.org/collection/the-collection-online, and a webGL/ThreeJs application that dynamically makes your own art gallery.
 
 ![Alt text](https://github.com/satimidus/the-gallery/blob/master/img/screenshot.png "ARTSY PROGRAMMING")
 
-Currently, searching for your favorite artist means opening downloader.py and putting your search query in the variable search_term. Instead of spaces, use the + symbol. 
-
-I need sleep.
 
 #UPDATE
-There is now a working prototype currently being hosted at owlsketch.github.io/the-gallery
-
-Now working on beta version that will rebuild the system from scratch but implements certain imperative functions. 
+Now working on beta version that will rebuild the system but implements certain imperative functions. 
 
 TODO:
 
@@ -23,13 +20,14 @@ Structure:
 
 		---> gallery application.
 
+			---> painting selection ---> displays information on painting
+			
 			---> search input for different artists ---> new gallery application
 
-			---> painting selection ---> displays information on painting
 
-Scraping source: Currently using a python web scraper, needs to be called as a script. Other sources besides Met?
+Scraping source: Currently using a python web scraper, needs to be called as a script. Other sources besides Metropolitan museum?
 
-Controls: Currently, controls are WASD and arrow keys. Need to switch to mouse for seeing-around and WASD for moving.
+Controls: Simple controls are implemented. Need a toggle for anti-alias. Need a method for selecting paintings. Append search bar.
 
 Setting: Currently only a floor with no texture. Have a bounding box that is representative of a real gallery. 
 
