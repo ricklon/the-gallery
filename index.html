@@ -118,15 +118,16 @@
 	
 	GALLERY.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
 	
-	//Need a toggle for antialias
-	GALLERY.renderer = new THREE.WebGLRenderer({antialias:false}); 
+	
+	GALLERY.renderer = new THREE.WebGLRenderer({antialias: false}); 
 	GALLERY.renderer.setSize(window.innerWidth, window.innerHeight);
 	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
 	document.body.appendChild(GALLERY.renderer.domElement);
 
+
 	//Change the size of the canvas if resized
 	window.addEventListener('resize', function() {
-		UNIV.WIDTH = window.innerWidth,
+		UNIV.WIDTH = window.innerWidth;
 		UNIV.HEIGHT = window.innerHeight;
 		GALLERY.renderer.setSize(UNIV.WIDTH, UNIV.HEIGHT);
 		GALLERY.camera.aspect = UNIV.WIDTH / UNIV.HEIGHT;
@@ -142,6 +143,23 @@
 	GALLERY.scene.add(GALLERY.topLight);
 
 
+
+
+	/////////////////FLOOR////////////////////////
+	//first need to load the texture and set it to repeat
+	GALLERY.floortext = THREE.ImageUtils.loadTexture("img/MarbleFloor.jpg");
+	GALLERY.floortext.wrapS = THREE.RepeatWrapping;
+	GALLERY.floortext.wrapT = THREE.RepeatWrapping;
+	GALLERY.floortext.repeat.set(40,40);
+	GALLERY.floormaterial = new THREE.MeshLambertMaterial({ map: GALLERY.floortext });
+	
+	GALLERY.floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), GALLERY.floormaterial);
+	GALLERY.floor.rotation.x = Math.PI/2;
+	GALLERY.floor.rotation.y = Math.PI;
+
+	GALLERY.scene.add(GALLERY.floor);
+
+
 	/////////////////PAINTINGS//////////////////////
 	var num_of_paintings = 30;
 	var paintings = [];
@@ -153,18 +171,22 @@
 
 			artwork.onload = function(){
 
-			ratiow = artwork.width / artwork.width;
-			ratioh = artwork.height / artwork.width;
+			//base width of 25units. Thus every painting will have a displacement of 35 units with
+			//repect to the previous painting, leaving a gap of 10 units in between each. 
+			//to 'center' all the paintings. Need to get total number of paintings multiply by 35 
+			//and divide by 4
+			ratiow = (artwork.width / artwork.width)*25;
+			ratioh = (artwork.height / artwork.width)*25;
 			// plane for artwork
 			var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 			plane.overdraw = true;
 			if(i <= Math.floor(num_of_paintings/2))
 			{
-				plane.position.set(2*i - 2*Math.floor(num_of_paintings/4), 1 , 0);
+				plane.position.set(35*i - 35*Math.floor(num_of_paintings/4), 40 , -60);
 			}
 			else
 			{
-				plane.position.set(2*i - num_of_paintings - Math.floor(num_of_paintings/2), 1, 5);
+				plane.position.set(35*i - 35*Math.floor(num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 40, 60);
 				plane.rotation.y = Math.PI;
 			}
 
@@ -182,19 +204,6 @@
 		}(i))
 	}
 	//SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. 
-
-
-
-	/////////////////FLOOR////////////////////////
-	var floorTexture = new THREE.ImageUtils.loadTexture( 'img/MarbleFloor1.jpg' );
-	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-	floorTexture.repeat.set( 10, 10 );
-	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-	var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
-	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.position.y = -0.5;
-	floor.rotation.x = Math.PI / 2;
-	GALLERY.scene.add(floor);
 
 
 
@@ -216,7 +225,7 @@
 	};
 
 	render();
-} //closes else statement of webGL detector.
+}; //closes else statement of webGL detector.
 </script>
 </body>
 </html>
