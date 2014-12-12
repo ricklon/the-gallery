@@ -12,8 +12,7 @@ THREE.PointerLockControls = function ( camera ) {
 	pitchObject.add( camera );
 
 	var yawObject = new THREE.Object3D();
-	yawObject.position.y = 1;
-	yawObject.position.z = 3;
+	yawObject.position.y = 40;
 	yawObject.add( pitchObject );
 
 	var moveForward = false;
@@ -68,7 +67,7 @@ THREE.PointerLockControls = function ( camera ) {
 				break;
 
 			case 32: // space
-				if ( canJump === true ) velocity.y += 22;
+				if ( canJump === true ) velocity.y += 350;
 				canJump = false;
 				break;
 
@@ -127,7 +126,7 @@ THREE.PointerLockControls = function ( camera ) {
 
 		// assumes the camera itself is not rotated
 
-		var direction = new THREE.Vector3( 0, 0, -3 );
+		var direction = new THREE.Vector3( 0, 0, -1 );
 		var rotation = new THREE.Euler( 0, 0, 0, "YXZ" );
 
 		return function( v ) {
@@ -147,18 +146,18 @@ THREE.PointerLockControls = function ( camera ) {
 		if ( scope.enabled === false ) return;
 
 		var time = performance.now();
-		var delta = ( time - prevTime ) / 2800;
+		var delta = ( time - prevTime ) / 1000;
 
-		velocity.x -= velocity.x * 10.0 * delta;
-		velocity.z -= velocity.z * 10.0 * delta;
+		velocity.x -= velocity.x * 10 * delta;
+		velocity.z -= velocity.z * 10 * delta;
 
-		velocity.y -= 2.475 * 100.0 * delta; // 100.0 = mass
+		velocity.y -= 9.8 * 105.0 * delta; // 105.0 = mass
 
-		if ( moveForward ) velocity.z -= 65.0 * delta;
-		if ( moveBackward ) velocity.z += 65.0 * delta;
+		if ( moveForward ) velocity.z -= 750.0 * delta;
+		if ( moveBackward ) velocity.z += 500.0 * delta;
 
-		if ( moveLeft ) velocity.x -= 65.0 * delta;
-		if ( moveRight ) velocity.x += 65.0 * delta;
+		if ( moveLeft ) velocity.x -= 750.0 * delta;
+		if ( moveRight ) velocity.x += 750.0 * delta;
 
 		if ( isOnObject === true ) {
 
@@ -170,10 +169,10 @@ THREE.PointerLockControls = function ( camera ) {
 		yawObject.translateY( velocity.y * delta ); 
 		yawObject.translateZ( velocity.z * delta );
 
-		if ( yawObject.position.y < 1 ) {
+		if ( yawObject.position.y < 40 ) {
 
 			velocity.y = 0;
-			yawObject.position.y = 1;
+			yawObject.position.y = 40;
 
 			canJump = true;
 

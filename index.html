@@ -2,8 +2,6 @@
 <html>
 <head>
 		<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
-		<!-- Optimizing for mobile -->
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 		
 		<title>The Gallery</title>
 
@@ -32,7 +30,7 @@
 		alert("Your browser does not support WebGL!");
 	}
 	else {
-	var UNIV = {}; //universal controllers under global variable UNIV
+	var UNIV = {}; //Using YUI module system in order to prevent variable overlap with other libraries. 
 	UNIV.controls;
 	//blocker displays the controls, and tells user to click on the screen to play
 	UNIV.blocker = document.getElementById('blocker');
@@ -118,15 +116,16 @@
 	
 	GALLERY.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
 	
-	//Need a toggle for antialias
-	GALLERY.renderer = new THREE.WebGLRenderer({antialias:false}); 
+	//look into image compression in order to allow antialias to be true and fluid	
+	GALLERY.renderer = new THREE.WebGLRenderer({antialias: false}); 
 	GALLERY.renderer.setSize(window.innerWidth, window.innerHeight);
 	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
 	document.body.appendChild(GALLERY.renderer.domElement);
 
+
 	//Change the size of the canvas if resized
 	window.addEventListener('resize', function() {
-		UNIV.WIDTH = window.innerWidth,
+		UNIV.WIDTH = window.innerWidth;
 		UNIV.HEIGHT = window.innerHeight;
 		GALLERY.renderer.setSize(UNIV.WIDTH, UNIV.HEIGHT);
 		GALLERY.camera.aspect = UNIV.WIDTH / UNIV.HEIGHT;
@@ -136,10 +135,36 @@
 
 	////////////////////LIGHTING////////////////////
 	//Akin to sun, lights the whole world
-	GALLERY.topLight = new THREE.DirectionalLight(0xdddddd, 1.0);
+	GALLERY.topLight = new THREE.DirectionalLight(0xffffff, 1.35);
 	GALLERY.topLight.position.y = 15;
 	GALLERY.topLight.position.z = 15;
 	GALLERY.scene.add(GALLERY.topLight);
+
+
+
+
+	/////////////////FLOOR////////////////////////
+	//first need to load the texture and set it to repeat
+	GALLERY.floortext = THREE.ImageUtils.loadTexture("img/Floor.jpg");
+	GALLERY.floortext.wrapS = THREE.RepeatWrapping;
+	GALLERY.floortext.wrapT = THREE.RepeatWrapping;
+	GALLERY.floortext.repeat.set(24,24);
+	GALLERY.floormaterial = new THREE.MeshLambertMaterial({ map: GALLERY.floortext });
+	
+	GALLERY.floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), GALLERY.floormaterial);
+	GALLERY.floor.rotation.x = Math.PI/2;
+	GALLERY.floor.rotation.y = Math.PI;
+
+	GALLERY.scene.add(GALLERY.floor);
+
+
+	/////////////////WALLS////////////////////
+	GALLERY.boundingBox = new THREE.BoxGeometry(1000,150,182);
+	GALLERY.boxMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+	GALLERY.boxMaterial.side = THREE.BackSide;
+	GALLERY.walls = new THREE.Mesh(GALLERY.boundingBox, GALLERY.boxMaterial);
+	GALLERY.walls.position.y = 48;
+	GALLERY.scene.add(GALLERY.walls);
 
 
 	/////////////////PAINTINGS//////////////////////
@@ -153,18 +178,18 @@
 
 			artwork.onload = function(){
 
-			ratiow = artwork.width / artwork.width;
-			ratioh = artwork.height / artwork.width;
+			ratiow = artwork.width/10;
+			ratioh = artwork.height/10;
 			// plane for artwork
 			var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 			plane.overdraw = true;
 			if(i <= Math.floor(num_of_paintings/2))
 			{
-				plane.position.set(2*i - 2*Math.floor(num_of_paintings/4), 1 , 0);
+				plane.position.set(65*i - 65*Math.floor(num_of_paintings/4), 48 , -90);
 			}
 			else
 			{
-				plane.position.set(2*i - num_of_paintings - Math.floor(num_of_paintings/2), 1, 5);
+				plane.position.set(65*i - 75*Math.floor(num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
 				plane.rotation.y = Math.PI;
 			}
 
@@ -181,22 +206,6 @@
 			img.map.needsUpdate = true; //ADDED
 		}(i))
 	}
-	//SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. 
-
-
-
-	/////////////////FLOOR////////////////////////
-	var floorTexture = new THREE.ImageUtils.loadTexture( 'img/MarbleFloor1.jpg' );
-	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-	floorTexture.repeat.set( 10, 10 );
-	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-	var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
-	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.position.y = -0.5;
-	floor.rotation.x = Math.PI / 2;
-	GALLERY.scene.add(floor);
-
-
 
 	///////////////ANIMATION/////////////////////
 	var render = function () {
@@ -216,7 +225,7 @@
 	};
 
 	render();
-} //closes else statement of webGL detector.
+}; //closes else statement of webGL detector.
 </script>
 </body>
 </html>
