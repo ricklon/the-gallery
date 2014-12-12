@@ -154,7 +154,7 @@ THREE.PointerLockControls = function ( camera ) {
 		velocity.y -= 9.8 * 105.0 * delta; // 105.0 = mass
 
 		if ( moveForward ) velocity.z -= 750.0 * delta;
-		if ( moveBackward ) velocity.z += 650.0 * delta;
+		if ( moveBackward ) velocity.z += 500.0 * delta;
 
 		if ( moveLeft ) velocity.x -= 750.0 * delta;
 		if ( moveRight ) velocity.x += 750.0 * delta;

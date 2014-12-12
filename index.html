@@ -2,8 +2,6 @@
 <html>
 <head>
 		<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1">
-		<!-- Optimizing for mobile -->
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 		
 		<title>The Gallery</title>
 
@@ -32,7 +30,7 @@
 		alert("Your browser does not support WebGL!");
 	}
 	else {
-	var UNIV = {}; //universal controllers under global variable UNIV
+	var UNIV = {}; //Using YUI module system in order to prevent variable overlap with other libraries. 
 	UNIV.controls;
 	//blocker displays the controls, and tells user to click on the screen to play
 	UNIV.blocker = document.getElementById('blocker');
@@ -118,7 +116,7 @@
 	
 	GALLERY.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
 	
-	
+	//look into image compression in order to allow antialias to be true and fluid	
 	GALLERY.renderer = new THREE.WebGLRenderer({antialias: false}); 
 	GALLERY.renderer.setSize(window.innerWidth, window.innerHeight);
 	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
@@ -137,7 +135,7 @@
 
 	////////////////////LIGHTING////////////////////
 	//Akin to sun, lights the whole world
-	GALLERY.topLight = new THREE.DirectionalLight(0xdddddd, 1.0);
+	GALLERY.topLight = new THREE.DirectionalLight(0xffffff, 1.35);
 	GALLERY.topLight.position.y = 15;
 	GALLERY.topLight.position.z = 15;
 	GALLERY.scene.add(GALLERY.topLight);
@@ -147,10 +145,10 @@
 
 	/////////////////FLOOR////////////////////////
 	//first need to load the texture and set it to repeat
-	GALLERY.floortext = THREE.ImageUtils.loadTexture("img/MarbleFloor.jpg");
+	GALLERY.floortext = THREE.ImageUtils.loadTexture("img/Floor.jpg");
 	GALLERY.floortext.wrapS = THREE.RepeatWrapping;
 	GALLERY.floortext.wrapT = THREE.RepeatWrapping;
-	GALLERY.floortext.repeat.set(40,40);
+	GALLERY.floortext.repeat.set(24,24);
 	GALLERY.floormaterial = new THREE.MeshLambertMaterial({ map: GALLERY.floortext });
 	
 	GALLERY.floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), GALLERY.floormaterial);
@@ -158,6 +156,15 @@
 	GALLERY.floor.rotation.y = Math.PI;
 
 	GALLERY.scene.add(GALLERY.floor);
+
+
+	/////////////////WALLS////////////////////
+	GALLERY.boundingBox = new THREE.BoxGeometry(1000,150,182);
+	GALLERY.boxMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+	GALLERY.boxMaterial.side = THREE.BackSide;
+	GALLERY.walls = new THREE.Mesh(GALLERY.boundingBox, GALLERY.boxMaterial);
+	GALLERY.walls.position.y = 48;
+	GALLERY.scene.add(GALLERY.walls);
 
 
 	/////////////////PAINTINGS//////////////////////
@@ -171,22 +178,18 @@
 
 			artwork.onload = function(){
 
-			//base width of 25units. Thus every painting will have a displacement of 35 units with
-			//repect to the previous painting, leaving a gap of 10 units in between each. 
-			//to 'center' all the paintings. Need to get total number of paintings multiply by 35 
-			//and divide by 4
-			ratiow = (artwork.width / artwork.width)*25;
-			ratioh = (artwork.height / artwork.width)*25;
+			ratiow = artwork.width/10;
+			ratioh = artwork.height/10;
 			// plane for artwork
 			var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 			plane.overdraw = true;
 			if(i <= Math.floor(num_of_paintings/2))
 			{
-				plane.position.set(35*i - 35*Math.floor(num_of_paintings/4), 40 , -60);
+				plane.position.set(65*i - 65*Math.floor(num_of_paintings/4), 48 , -90);
 			}
 			else
 			{
-				plane.position.set(35*i - 35*Math.floor(num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 40, 60);
+				plane.position.set(65*i - 75*Math.floor(num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
 				plane.rotation.y = Math.PI;
 			}
 
@@ -203,9 +206,6 @@
 			img.map.needsUpdate = true; //ADDED
 		}(i))
 	}
-	//SPECIAL THANKS TO MATT CONDON FOR HELPING ME OUT WITH THE ABOVE CODE HE IS A LIFE SAVER. 
-
-
 
 	///////////////ANIMATION/////////////////////
 	var render = function () {
