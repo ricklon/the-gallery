@@ -105,6 +105,7 @@
 	var GALLERY = {}; //objects that pertain to our main scene are under global var GALLERY
 	
 	GALLERY.scene = new THREE.Scene();
+	GALLERY.scene.fog = new THREE.FogExp2(0xdddddd, 0.0011);
 	
 	GALLERY.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 	
@@ -134,22 +135,23 @@
 
 
 	////////////////////LIGHTING////////////////////
-	//Akin to sun, lights the whole world
-	GALLERY.topLight = new THREE.DirectionalLight(0xffffff, 1.35);
-	GALLERY.topLight.position.y = 15;
-	GALLERY.topLight.position.z = 15;
-	GALLERY.scene.add(GALLERY.topLight);
-
+	//hemisphere light, lights the whole scene, but is rendered directly
+	//above the user. Thus specularity is most reflective right below the user
+	GALLERY.hemiLight = new THREE.HemisphereLight(0xffffff, 0xeeeeee, .99); 
+	GALLERY.hemiLight.position.y = 198;
+	GALLERY.scene.add(GALLERY.hemiLight);
 
 
 
 	/////////////////FLOOR////////////////////////
+	//The material allows for a specularity found in polished floors 
 	//first need to load the texture and set it to repeat
 	GALLERY.floortext = THREE.ImageUtils.loadTexture("img/Floor.jpg");
 	GALLERY.floortext.wrapS = THREE.RepeatWrapping;
 	GALLERY.floortext.wrapT = THREE.RepeatWrapping;
 	GALLERY.floortext.repeat.set(24,24);
-	GALLERY.floormaterial = new THREE.MeshLambertMaterial({ map: GALLERY.floortext });
+	
+	GALLERY.floormaterial = new THREE.MeshPhongMaterial({ map: GALLERY.floortext });
 	
 	GALLERY.floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), GALLERY.floormaterial);
 	GALLERY.floor.rotation.x = Math.PI/2;
@@ -159,11 +161,13 @@
 
 
 	/////////////////WALLS////////////////////
-	GALLERY.boundingBox = new THREE.BoxGeometry(1000,150,182);
-	GALLERY.boxMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+	GALLERY.boundingBox = new THREE.BoxGeometry(1000,200,182);
+	GALLERY.boxMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff} );
 	GALLERY.boxMaterial.side = THREE.BackSide;
+
 	GALLERY.walls = new THREE.Mesh(GALLERY.boundingBox, GALLERY.boxMaterial);
-	GALLERY.walls.position.y = 48;
+	GALLERY.walls.position.y = 99.5;
+	
 	GALLERY.scene.add(GALLERY.walls);
 
 
