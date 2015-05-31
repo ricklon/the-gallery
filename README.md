@@ -29,7 +29,8 @@ Scraping source: Currently using a python web scraper, needs to be called as a s
 
 Controls: Simple controls are implemented. Need a toggle for anti-alias. Need a method for selecting paintings. Append search bar.
 
-Setting: Currently only a floor with no texture. Have a bounding box that is representative of a real gallery. 
+Main Menu: Add search bar for selecting painters. Credits at the bottom and thanks. Links to github/twitter/etc at bottom.
+	While waiting, camera should pan around the scene in the background.
 
 Paintings: Currently static objects that do not permit interaction. Instead need to permit interactivity by hovering
 	or clicking in order to display NYTIMES articles. Need to have the correct proportions for all the paintings. 
