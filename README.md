@@ -26,6 +26,7 @@ Structure:
 
 
 Scraping source: Currently using a python web scraper, needs to be called as a script. Other sources besides Metropolitan museum?
+    Information is stored in .json files.
 
 Controls: Simple controls are implemented. Need a toggle for anti-alias. Need a method for selecting paintings. Append search bar.
 
