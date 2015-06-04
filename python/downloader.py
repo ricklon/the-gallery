@@ -35,7 +35,7 @@ def get_data(art_pages):
 		count = count + 1
 		print(count)
 		print(main_url+links)
-	#for every individual page. Get info. Image.	
+	    #for every individual page. Get info. Image.	
 		response = requests.get(main_url+links)
 		soup = bs4.BeautifulSoup(response.text)
 		imagine = soup.select('div.image-controls-container img')

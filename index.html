@@ -11,6 +11,8 @@
 		<script src="js/Detector.js"></script> 
 		<script src="js/ColladaLoader.js"></script>
 		<script src="js/PointerLockControls.js"></script>
+    <script src="js/StereoEffects.js"></script>
+    <script scr="js/DeviceOrientationControls"></script>
 </head>
 
 
@@ -110,6 +112,7 @@
 	GALLERY.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 	
 	GALLERY.objects = [];
+
 	
 	UNIV.controls = new THREE.PointerLockControls(GALLERY.camera);
 	
@@ -122,6 +125,8 @@
 	GALLERY.renderer.setSize(window.innerWidth, window.innerHeight);
 	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
 	document.body.appendChild(GALLERY.renderer.domElement);
+  
+  GALLERY.effect = new THREE.StereoEffect(GALLERY.renderer);
 
 
 	//Change the size of the canvas if resized
@@ -225,8 +230,8 @@
 		}
 		UNIV.controls.update();
 
-		GALLERY.renderer.render(GALLERY.scene, GALLERY.camera);
-	};
+	  GALLERY.effect.render(GALLERY.scene, GALLERY.camera);
+    };
 
 	render();
 }; //closes else statement of webGL detector.
