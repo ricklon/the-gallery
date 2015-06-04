@@ -1,6 +1,6 @@
 #TODO:
-#   Provide arguments for search and optional quatity to request(Default is 30)
-#   Account for fail cases, such as when a link we request doesn't exist
+#   Provide arguments for search and optional quantity to request(Default is 30)
+#   account for when OASC dissaproval means less than 30 final paintings
 
 
 #This is a simple web scraper that goes to the met museum and writes down the necessary data into a json file
@@ -33,8 +33,6 @@ entries_availables = None
 quantity_requested = 30 
 #need to get number of available entries
 #then need to filter out unnaproved images
-#
-
 
 def quantity_of_images(count):
     global links
@@ -82,27 +80,37 @@ def get_img_urls():
 
 #Scrapes the individual art painting pages
 def get_data(art_pages):
-	for links in art_pages:
-		print(main_url+links)
-	    #for every individual page. Get info. Image.	
-		response = requests.get(main_url+links)
-		soup = bs4.BeautifulSoup(response.text)
-		#print(soup.select('div.image-controls-container')[0])
-		print(soup.find_all("a", class_="oasc")[0].text)
-		print(soup.find_all("a", class_="permalink")[0].text)
-		print(main_url + soup.find_all("a", class_="permalink")[0].attrs.get('href'))
-		print(soup.find_all("a", class_="download")[0].text)
-		print(soup.find_all("a", class_="download")[0].attrs.get('href'))
+    for links in art_pages:
+        print(main_url+links)
+        #for every individual page. Get info. Image.    
+        response = requests.get(main_url+links)
+        soup = bs4.BeautifulSoup(response.text)
+        #print(soup.select('div.image-controls-container')[0])
+        oasc_approval = soup.find_all("a", class_="oasc")
+        if not oasc_approval:
+            print("Not OASC approved.")
+            continue
+        print(soup.find_all("a", class_="oasc")[0].text)
+        print(soup.find_all("a", class_="permalink")[0].text)
+        print(main_url + soup.find_all("a", class_="permalink")[0].attrs.get('href'))
+        downloadable = soup.find_all("a", class_="download")
+        if downloadable:
+            print(downloadable[0].text)
+            print(downloadable[0].attrs.get('href'))
 
-		imagine = soup.select('div.image-controls-container img')
-		print('Image src')
-		print(imagine[0]['src'])
+        imagine = soup.select('div.image-controls-container img')
+        print('Image src')
+        print(imagine[0]['src'])
 
-		print(soup.find('h2').text)
-		print(soup.select('div.tombstone')[0].text)
-		print(soup.select('div.gallery')[0].text)
-		print(main_url + soup.select('div.gallery')[0].contents[1].attrs.get('href'))
-		print('=============================================')
+        print(soup.find('h2').text)
+        print(soup.select('div.tombstone')[0].text)
+        gallery = soup.select('div.gallery')
+        if gallery:
+            print(soup.select('div.gallery')[0].text)
+            if len(soup.select('div.gallery')[0].contents) > 1:
+                print(main_url + soup.select('div.gallery')[0].contents[1].attrs.get('href'))
+        print("\n")
+
 
 page_urls = get_img_urls() #get a list of x number of paintings requested urls
 get_data(page_urls) #gets info for every link in list
