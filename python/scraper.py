@@ -16,6 +16,7 @@
 
 import requests
 import bs4 #parsing through html
+import urllib
 import json #need to write a json file
 
 #setting up the urls that will be used
@@ -90,20 +91,34 @@ def get_data(art_pages):
         if not oasc_approval:
             print("Not OASC approved.")
             continue
-        print(soup.find_all("a", class_="oasc")[0].text)
-        print(soup.find_all("a", class_="permalink")[0].text)
-        print(main_url + soup.find_all("a", class_="permalink")[0].attrs.get('href'))
+        oasc_approved = soup.find_all("a", class_="oasc")[0].text
+        print(oasc_approved)
+       
+        #Retrieves image link to store
+        imagine = soup.select('div.image-controls-container img')
+		#urllib.urlretrieve(imagine[0]['src'], "../img/Artworks/"+str(count)+".jpg")
+
+        permalink = soup.find_all("a", class_="permalink")
+        if permalink:
+            link_permalink = main_url + soup.find_all("a", class_="permalink")[0].attrs.get('href')
+            print(link_permalink)
+
         downloadable = soup.find_all("a", class_="download")
         if downloadable:
-            print(downloadable[0].text)
+            print('Download')
             print(downloadable[0].attrs.get('href'))
 
-        imagine = soup.select('div.image-controls-container img')
         print('Image src')
         print(imagine[0]['src'])
+    
+        title = soup.find('h2').text
+        print(title)
 
-        print(soup.find('h2').text)
-        print(soup.select('div.tombstone')[0].text)
+        tombstone =  soup.select('div.tombstone')[0].contents
+        for text in tombstone:
+            if text == '\n':
+                tombstone.remove(text)
+        print(tombstone)
         gallery = soup.select('div.gallery')
         if gallery:
             print(soup.select('div.gallery')[0].text)
