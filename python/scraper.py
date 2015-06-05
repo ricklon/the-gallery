@@ -31,7 +31,7 @@ image_count = 0
 index = 1
 links = []
 entries_availables = None
-quantity_requested = 30 
+quantity_requested = 3
 #need to get number of available entries
 #then need to filter out unnaproved images
 
@@ -81,10 +81,11 @@ def get_img_urls():
 
 #Scrapes the individual art painting pages
 def get_data(art_pages):
+    count = 0
     for links in art_pages:
-        print(main_url+links)
+        link = main_url+links
         #for every individual page. Get info. Image.    
-        response = requests.get(main_url+links)
+        response = requests.get(link)
         soup = bs4.BeautifulSoup(response.text)
         #print(soup.select('div.image-controls-container')[0])
         oasc_approval = soup.find_all("a", class_="oasc")
@@ -92,40 +93,40 @@ def get_data(art_pages):
             print("Not OASC approved.")
             continue
         oasc_approved = soup.find_all("a", class_="oasc")[0].text
-        print(oasc_approved)
        
         #Retrieves image link to store
-        imagine = soup.select('div.image-controls-container img')
-		#urllib.urlretrieve(imagine[0]['src'], "../img/Artworks/"+str(count)+".jpg")
-
+        imagine = soup.select('div.image-controls-container img')[0]['src']
         permalink = soup.find_all("a", class_="permalink")
         if permalink:
             link_permalink = main_url + soup.find_all("a", class_="permalink")[0].attrs.get('href')
-            print(link_permalink)
 
         downloadable = soup.find_all("a", class_="download")
         if downloadable:
-            print('Download')
-            print(downloadable[0].attrs.get('href'))
+            download_link = downloadable[0].attrs.get('href')
 
-        print('Image src')
-        print(imagine[0]['src'])
-    
         title = soup.find('h2').text
-        print(title)
 
-        tombstone =  soup.select('div.tombstone')[0].contents
-        for text in tombstone:
-            if text == '\n':
-                tombstone.remove(text)
-        print(tombstone)
+        encode = {"Link": link, "Permalink": link_permalink, "Download": download_link, "Image": imagine, "Title": title}
+        tombstone = soup.select('div.tombstone div')
+        for info in tombstone:
+            info = unicode(info.text)
+            name = info[0:info.index(':')]
+            remaining_info = info[info.rfind(':')+1:]
+            remaining_info = remaining_info.strip()
+            encode[name] = remaining_info
+
         gallery = soup.select('div.gallery')
         if gallery:
-            print(soup.select('div.gallery')[0].text)
+            gallery_loc = soup.select('div.gallery')[0].text.strip()
+            encode['Location'] = gallery_loc
             if len(soup.select('div.gallery')[0].contents) > 1:
-                print(main_url + soup.select('div.gallery')[0].contents[1].attrs.get('href'))
-        print("\n")
-
+                gallery_link = main_url + soup.select('div.gallery')[0].contents[1].attrs.get('href')
+                encode['Location Link'] = gallery_link
+        jsonfile = open("../img/Artworks/" + str(count)+".json", 'w')
+        jsonfile.write(json.dumps(encode, sort_keys=True, indent=4))
+        jsonfile.close()
+        urllib.urlretrieve(imagine,"../img/Artworks/"+ str(count)+".jpg")
+        count = count + 1
 
 page_urls = get_img_urls() #get a list of x number of paintings requested urls
 get_data(page_urls) #gets info for every link in list
