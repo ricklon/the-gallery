@@ -11,8 +11,6 @@
 		<script src="js/Detector.js"></script> 
 		<script src="js/ColladaLoader.js"></script>
 		<script src="js/PointerLockControls.js"></script>
-    <script src="js/StereoEffects.js"></script>
-    <script scr="js/DeviceOrientationControls"></script>
 </head>
 
 
@@ -126,7 +124,6 @@
 	GALLERY.renderer.setClearColor( 0xffffff, 1); //background color
 	document.body.appendChild(GALLERY.renderer.domElement);
   
-  GALLERY.effect = new THREE.StereoEffect(GALLERY.renderer);
 
 
 	//Change the size of the canvas if resized
@@ -179,7 +176,7 @@
 	/////////////////PAINTINGS//////////////////////
 	var num_of_paintings = 30;
 	var paintings = [];
-	for(var i = 0; i < num_of_paintings-1; i++){
+	for(var i = 0; i < num_of_paintings; i++){
 		(function(i) {
 			var artwork = new Image();
 			var ratiow = 0;
@@ -205,7 +202,7 @@
 			GALLERY.scene.add(plane);
 			GALLERY.objects.push(plane);
 			}
-			var source = './img/Artworks/' + (i+1).toString() + '.jpg';
+			var source = './img/Artworks/' + (i).toString() + '.jpg';
 			console.log(source);
 			artwork.src = source;
 			var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
@@ -230,7 +227,7 @@
 		}
 		UNIV.controls.update();
 
-	  GALLERY.effect.render(GALLERY.scene, GALLERY.camera);
+	  GALLERY.renderer.render(GALLERY.scene, GALLERY.camera);
     };
 
 	render();
