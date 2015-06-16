@@ -14,15 +14,20 @@
 #   Finally, we will download the main image, and append all the necessary information to a json file.
 #       The titles of the files are simple the index. 1st article is index 0, 2nd is index 1 and so on.
 
+import sys
 import requests
 import bs4 #parsing through html
 import urllib
 import json #need to write a json file
 
+
 #setting up the urls that will be used
 main_url = 'http://www.metmuseum.org'
 root_url = 'http://www.metmuseum.org/collection/the-collection-online'
-search_term = 'Vincent+Van+Gogh' #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
+if len(sys.argv) <= 1:
+    print("Not enough arguments provided.")
+    sys.exit()
+search_term = sys.argv[1] #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
 image_toggle = '&amp;ao=on&amp;noqs=true' #show only artwork with images. Default is true
 collections_url = root_url + '/search?ft=' + search_term + image_toggle + '&rpp=30&pg='
 
@@ -31,7 +36,10 @@ image_count = 0
 index = 1
 links = []
 entries_availables = None
-quantity_requested = 3
+if len(sys.argv) == 3:
+    quantity_requested = int(sys.argv[2])
+else:
+    quantity_requested = 30
 #need to get number of available entries
 #then need to filter out unnaproved images
 
@@ -90,7 +98,6 @@ def get_data(art_pages):
         #print(soup.select('div.image-controls-container')[0])
         oasc_approval = soup.find_all("a", class_="oasc")
         if not oasc_approval:
-            print("Not OASC approved.")
             continue
         oasc_approved = soup.find_all("a", class_="oasc")[0].text
        
