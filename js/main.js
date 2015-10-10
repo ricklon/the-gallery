@@ -5,15 +5,30 @@ if(!(Detector.webgl)) //if no support for WebGL
 else {
 //////////////////////////////////////MAIN SCENE////////////////////////////////////////
 	var gal = {
+		/*
+		gal.scene;
+			gal.scene.fog;
+		gal.camera;
+		gal.renderer;
+		gal.boot;
+			gal.controls;
+			gal.canvas;
+		gal.pointerControls;
+			gal.changeCallback;
+			gal.errorCallback;
+			gal.moveCallback;
+			gal.toggleFullScreen;
+		gal.movement;
+		gal.create;
+		gal.render;
+		*/
 		scene: new THREE.Scene(),
 		camera: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
 		renderer: new THREE.WebGLRenderer({antialias: false}),
 
 		boot: function() {
-			//1 unit === 1 meter
-			gal.camera.position.z = 2.5;
-			gal.camera.position.y = 1.7;
-			//gal.camera.rotation.y = -Math.PI/2;
+			gal.controls = new THREE.PointerLockControls(gal.camera);
+			gal.scene.add( gal.controls.getObject());
 
 			gal.scene.fog = new THREE.FogExp2(0xdddddd, 0.0011);
 			
@@ -25,6 +40,16 @@ else {
 			gal.canvas = document.querySelector('canvas');
 			gal.canvas.className = "gallery";
 
+			//only when pointer is locked will translation controls be allowed: gal.controls.enabled
+			gal.moveVelocity = new THREE.Vector3();
+			gal.jump = true;
+			gal.moveForward = false;
+			gal.moveBackward = false;
+			gal.moveLeft = false;
+			gal.moveRight = false;
+
+			//renderer time delta
+			gal.prevTime = performance.now();
 
 			//Resize if window size change!
 			window.addEventListener('resize', function() {
@@ -35,7 +60,7 @@ else {
 
 		},
 
-		controls: function() {
+		pointerControls: function() {
 			//////POINTER LOCK AND FULL SCREEN////////////
 			//https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
 			//gal.controls; 
@@ -50,7 +75,7 @@ else {
 				//https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
 				//https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 				document.addEventListener("keydown", function(e) {
-					if(e.keyCode == 102 || e.keyCode == 70) {//F/f for fullscreen hahaha 
+					if(e.keyCode === 102 || e.keyCode === 70) {//F/f for fullscreen hahaha 
 						gal.toggleFullscreen(); 
 						//refer to below event listener:
 						gal.canvas.requestPointerLock();
@@ -85,7 +110,7 @@ else {
 		},
 
 		changeCallback: function(event) {
-			if(document.pointerLockElement === gal.canvas || document.mozPointerLockElement === gal.canvas || document.webkitPointerLockElement) {
+			if(document.pointerLockElement === gal.canvas || document.mozPointerLockElement === gal.canvas || document.webkitPointerLockElement === gal.canvas) {
 				//pointer is disabled by element
 				gal.controls.enabled = true;
 				//start mouse move listener
@@ -95,7 +120,6 @@ else {
 				//pointer is no longer disabled
 				gal.controls.enabled = false;
 				document.removeEventListener("mousemove", gal.moveCallback, false);
-				console.log("enabled");
 			}
 		},
 
@@ -132,9 +156,43 @@ else {
 				}
 			}
 		},
-
-		preload: function() {
-
+		
+		movement: function() {
+				document.addEventListener("keydown", function(e) {
+					if(e.keyCode === 87 || e.keyCode === 38) { //w or UP
+						gal.moveForward = true;	
+					}
+					else if(e.keyCode === 65 || e.keyCode === 37) { //A or LEFT
+						gal.moveLeft = true;
+					}
+					else if(e.keyCode === 83 || e.keyCode === 40) { //S or DOWN 
+						gal.moveBackward = true;
+					}
+					else if(e.keyCode === 68 || e.keyCode === 39) { //D or RIGHT
+						gal.moveRight = true;	
+					}
+					else if(e.keyCode ===  32) { //Spacebar
+						if(gal.jump) {
+							gal.moveVelocity.y += 17;
+							gal.jump = false;
+						}
+					}
+				});
+		
+				document.addEventListener("keyup", function(e) {
+					if(e.keyCode === 87 || e.keyCode === 38) { //w or UP
+						gal.moveForward = false;
+					}
+					else if(e.keyCode === 65 || e.keyCode === 37) { //A or LEFT
+						gal.moveLeft = false;
+					}
+					else if(e.keyCode === 83 || e.keyCode === 40) { //S or DOWN 
+						gal.moveBackward = false;
+					}
+					else if(e.keyCode === 68 || e.keyCode === 39) { //D or RIGHT
+						gal.moveRight = false;	
+					}
+				});
 		},
 
 		create: function() {
@@ -143,41 +201,32 @@ else {
 			gal.worldLight = new THREE.AmbientLight(0xeeeeee);
 			gal.scene.add(gal.worldLight);
 
-			//Create the floor///
-			gal.floorText = new THREE.ImageUtils.loadTexture("img/Floor.jpg");
-			gal.floorText.wrapS = THREE.RepeatWrapping;
-			gal.floorText.wrapT = THREE.RepeatWrapping;
-			gal.floorText.repeat.set(600,600);
+			gal.floorMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.floorMaterial);
 
-			gal.floorMaterial = new THREE.MeshPhongMaterial({map: gal.floorText});
-
-			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), gal.floorMaterial);
-			gal.floor.rotation.x = Math.PI/2;
-			gal.floor.rotation.y = Math.PI;
-
+			gal.floor.rotation.x = -Math.PI/2;
 			gal.scene.add(gal.floor);
-
 
 			//Create the walls////
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			gal.wallMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+			gal.wallMaterial = new THREE.MeshBasicMaterial( {color: 0xFFFBE8} );
 			//consider BufferGeometry for static objects in the future
 			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial);
 			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial);
 			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial);
 			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial);
 
+			gal.wall1.position.z = -2.5;
+
 			gal.wall2.position.x = -7.5;
-			gal.wall2.position.z = 2.5;
 			gal.wall2.rotation.y = Math.PI/2;
 			
 			gal.wall3.position.x = 7.5;
-			gal.wall3.position.z = 2.5;
 			gal.wall3.rotation.y = -Math.PI/2;
 
-			gal.wall4.position.z = 5;
+			gal.wall4.position.z = 2.5;
 			gal.wall4.rotation.y = Math.PI;
 
 			gal.wallGroup.add(gal.wall1);
@@ -188,10 +237,9 @@ else {
 			gal.wallGroup.position.y = 2.5;
 
 			//Ceiling//
-			gal.ceilMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
+			gal.ceilMaterial = new THREE.MeshBasicMaterial({color: 0x8DB8A7});
 			gal.ceil = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.ceilMaterial);
 			gal.ceil.position.y = 5;
-			gal.ceil.position.z = 2.5;
 			gal.ceil.rotation.x = Math.PI/2;
 
 			gal.scene.add(gal.ceil);
@@ -242,14 +290,54 @@ else {
 		render: function() {
 			requestAnimationFrame(gal.render);
 
+			if(gal.controls.enabled === true) {
+				var currentTime = performance.now(); //returns time in milliseconds
+				//accurate to the thousandth of a millisecond
+				//want to get the most accurate and smallest change in time
+				var delta = (currentTime-gal.prevTime)/1000;
+
+				//there's a constant deceleration that needs to be applied
+				//only when the object is currently in motion
+				gal.moveVelocity.x -= gal.moveVelocity.x * 10.0 * delta;
+				//for now
+				gal.moveVelocity.y -= 9.8 * 7.0 * delta; // m/s^2 * kg * delta Time
+				gal.moveVelocity.z -= gal.moveVelocity.z * 10.0 * delta;
+
+				//need to apply velocity when keys are being pressed
+				if(gal.moveForward) {
+					gal.moveVelocity.z -= 38.0 * delta;
+				}
+				if(gal.moveBackward) {
+					gal.moveVelocity.z += 38.0 * delta;
+				}
+				if(gal.moveLeft) {
+					gal.moveVelocity.x -= 38.0 * delta;
+				}
+				if(gal.moveRight) {
+					gal.moveVelocity.x += 38.0 * delta;
+				}
+				
+				gal.controls.getObject().translateX(gal.moveVelocity.x * delta);
+				gal.controls.getObject().translateY(gal.moveVelocity.y * delta);
+				gal.controls.getObject().translateZ(gal.moveVelocity.z * delta);
+				
+				if(gal.controls.getObject().position.y < 1.75) {
+						gal.jump = true;
+						gal.moveVelocity.y = 0;
+
+						gal.controls.getObject().position.y = 1.75;
+				}
+
+				gal.prevTime = currentTime;
+			}
 
 			gal.renderer.render(gal.scene, gal.camera);
-		}
+			}
 	};
 
 	gal.boot();
-	gal.controls();
-	gal.preload();
+	gal.pointerControls();
+	gal.movement();
 	gal.create();
 	gal.render();
 } //closes else statement of webGL detector.
