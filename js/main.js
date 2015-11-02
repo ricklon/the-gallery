@@ -20,6 +20,9 @@ else {
 			gal.toggleFullScreen;
 		gal.movement;
 		gal.create;
+		gal.raycaster;
+		gal.mouse;
+		gal.raycastSetUp;
 		gal.render;
 		*/
 		scene: new THREE.Scene(),
@@ -201,7 +204,7 @@ else {
 			gal.worldLight = new THREE.AmbientLight(0xeeeeee);
 			gal.scene.add(gal.worldLight);
 
-			gal.floorMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+			gal.floorMaterial = new THREE.MeshBasicMaterial( {color: 0xf390b6} );
 			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.floorMaterial);
 
 			gal.floor.rotation.x = -Math.PI/2;
@@ -211,7 +214,7 @@ else {
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			gal.wallMaterial = new THREE.MeshBasicMaterial( {color: 0xFFFBE8} );
+			gal.wallMaterial = new THREE.MeshBasicMaterial({color: 0xffeeff});
 			//consider BufferGeometry for static objects in the future
 			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial);
 			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial);
@@ -228,6 +231,11 @@ else {
 
 			gal.wall4.position.z = 2.5;
 			gal.wall4.rotation.y = Math.PI;
+
+			gal.wall1.name = "longWall1";
+			gal.wall2.name = "shortWall1";
+			gal.wall3.name = "shortWall2";
+			gal.wall4.name = "longWall2";
 
 			gal.wallGroup.add(gal.wall1);
 			gal.wallGroup.add(gal.wall2);
@@ -286,7 +294,13 @@ else {
 			//*/
 
 		},
-
+		raycaster: new THREE.Raycaster(),
+		mouse: new THREE.Vector2(),
+		raycastSetUp: function() {
+			gal.mouse.x = (0.5) * 2 - 1;
+			gal.mouse.y = - (0.5) * 2 + 1;
+		},
+		
 		render: function() {
 			requestAnimationFrame(gal.render);
 
@@ -331,6 +345,20 @@ else {
 				gal.prevTime = currentTime;
 			}
 
+
+			//Raycaster seems to point in the upward direction.
+			//is not affected by pitch or yaw of camera it seems.
+			//rayCaster
+			gal.raycaster.setFromCamera(gal.mouse, gal.camera);
+
+			//calculate objects interesting ray
+			var intersects = gal.raycaster.intersectObjects(gal.scene.children, true);
+			if(intersects.length !== 0) {
+				console.log(intersects[0].object.name);	
+				console.log(intersects[0].distance);
+				console.log(intersects[0].point);
+			}
+
 			gal.renderer.render(gal.scene, gal.camera);
 			}
 	};
@@ -339,5 +367,6 @@ else {
 	gal.pointerControls();
 	gal.movement();
 	gal.create();
+	gal.raycastSetUp();
 	gal.render();
 } //closes else statement of webGL detector.
