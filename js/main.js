@@ -255,38 +255,43 @@ else {
 			///////Add Artworks~///////
 			gal.artGroup = new THREE.Group();
 
-			/*
+			//*
 			gal.num_of_paintings = 1;
 			gal.paintings = [];
 			for(var i = 0; i < gal.num_of_paintings; i++){
-				(function(i) {
+				(function(index) {
 					var artwork = new Image();
 					var ratiow = 0;
 					var ratioh = 0;
 
-					artwork.onload = function(){
-
-						ratiow = artwork.width/10;
-						ratioh = artwork.height/10;
-						// plane for artwork
-						var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
-						plane.overdraw = true;
-						if(i <= Math.floor(gal.num_of_paintings/2))
-						{
-						}
-						else
-						{
-						//	plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
-						//	plane.rotation.y = Math.PI;
-						}
-
-						gal.scene.add(plane);
-					}
-					var source = './img/Artwork/' + (i).toString() + '.jpg';
+                    // ./img/Artwork/index.jpg
+					var source = './img/Artwork/' + (index).toString() + '.jpg';
 					artwork.src = source;
+
 					var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
 					map:THREE.ImageUtils.loadTexture(artwork.src)
 					});
+
+					artwork.onload = function(){
+						ratiow = artwork.width/1000;
+						ratioh = artwork.height/1000;
+						// plane for artwork
+						var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
+						plane.overdraw = true;
+						if(index <= Math.floor(gal.num_of_paintings/2))
+						{
+							plane.rotation.z = Math.PI/2;
+                            plane.position.set(0,2.5,-2.45);
+						}
+						else
+						{
+							plane.rotation.z = Math.PI/2;
+                            plane.position.set(0,0,0);
+						//	plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
+						//	plane.rotation.y = Math.PI;
+						}
+						gal.scene.add(plane);
+					}
 
 					img.map.needsUpdate = true; //ADDED
 				}(i))
