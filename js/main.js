@@ -33,7 +33,7 @@ else {
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
 
-			gal.scene.fog = new THREE.FogExp2(0xdddddd, 0.0011);
+			gal.scene.fog = new THREE.FogExp2(0x666666, 0.035);
 			
 			gal.renderer.setSize(window.innerWidth, window.innerHeight);
 			gal.renderer.setClearColor(0xffffff, 1);
@@ -201,25 +201,37 @@ else {
 		create: function() {
 
 			//let there be light!
-			gal.worldLight = new THREE.AmbientLight(0xeeeeee);
+			gal.worldLight = new THREE.AmbientLight(0xffffff);
 			gal.scene.add(gal.worldLight);
 
-			gal.floorMaterial = new THREE.MeshBasicMaterial( {color: 0xf390b6} );
-			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.floorMaterial);
+            //set the floor up
+            gal.floorText = THREE.ImageUtils.loadTexture("img/Floor.jpg");
+            gal.floorText.wrapS = THREE.RepeatWrapping;
+            gal.floorText.wrapT = THREE.RepeatWrapping;
+            gal.floorText.repeat.set(8,8);
 
-			gal.floor.rotation.x = -Math.PI/2;
+            //Phong is for shiny surfaces
+			gal.floorMaterial = new THREE.MeshPhongMaterial( {map: gal.floorText } );
+			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(15,15), gal.floorMaterial);
+
+			gal.floor.rotation.x = Math.PI/2;
+            gal.floor.rotation.y = Math.PI;
 			gal.scene.add(gal.floor);
 
 			//Create the walls////
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			gal.wallMaterial = new THREE.MeshBasicMaterial({color: 0xffeeff});
+			//gal.wallMaterial = new THREE.MeshBasicMaterial({color: 0xffeeff});
+			gal.wallMaterial1 = new THREE.MeshLambertMaterial({color: 0xffffff});
+			gal.wallMaterial2 = new THREE.MeshLambertMaterial({color: 0xffffff});
+			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
+			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial);
-			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial);
-			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial);
-			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial);
+			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial1);
+			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial2);
+			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial3);
+			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial4);
 
 			gal.wall1.position.z = -2.5;
 
@@ -242,10 +254,17 @@ else {
 			gal.wallGroup.add(gal.wall3);
 			gal.wallGroup.add(gal.wall4);
 
+            gal.intersectObjects = [];
+
+            gal.intersectObjects.push(gal.wall1);
+            gal.intersectObjects.push(gal.wall2);
+            gal.intersectObjects.push(gal.wall3);
+            gal.intersectObjects.push(gal.wall4);
+
 			gal.wallGroup.position.y = 2.5;
 
 			//Ceiling//
-			gal.ceilMaterial = new THREE.MeshBasicMaterial({color: 0x8DB8A7});
+			gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
 			gal.ceil = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.ceilMaterial);
 			gal.ceil.position.y = 5;
 			gal.ceil.rotation.x = Math.PI/2;
@@ -265,23 +284,23 @@ else {
 					var ratioh = 0;
 
                     // ./img/Artwork/index.jpg
-					var source = './img/Artwork/' + (index).toString() + '.jpg';
+					var source = './img/Artworks/' + (index).toString() + '.jpg';
 					artwork.src = source;
 
-					var img = new THREE.MeshBasicMaterial({ //CHANGED to MeshBasicMaterial
+					var img = new THREE.MeshBasicMaterial({ 
 					map:THREE.ImageUtils.loadTexture(artwork.src)
 					});
 
 					artwork.onload = function(){
-						ratiow = artwork.width/1000;
-						ratioh = artwork.height/1000;
+						ratiow = artwork.width/300;
+						ratioh = artwork.height/300;
 						// plane for artwork
 						var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 						plane.overdraw = true;
 						if(index <= Math.floor(gal.num_of_paintings/2))
 						{
 							plane.rotation.z = Math.PI/2;
-                            plane.position.set(0,2.5,-2.45);
+                            plane.position.set(0,2,-2.45);
 						}
 						else
 						{
@@ -303,7 +322,7 @@ else {
 		mouse: new THREE.Vector2(),
 		raycastSetUp: function() {
 			gal.mouse.x = (0.5) * 2 - 1;
-			gal.mouse.y = - (0.5) * 2 + 1;
+			gal.mouse.y = (0.5) * 2 + 1;
 		},
 		
 		render: function() {
@@ -351,15 +370,13 @@ else {
 			}
 
 
-			//Raycaster seems to point in the upward direction.
-			//is not affected by pitch or yaw of camera it seems.
 			//rayCaster
 			gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
 			//calculate objects interesting ray
-			var intersects = gal.raycaster.intersectObjects(gal.scene.children, true);
+			var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
 			if(intersects.length !== 0) {
-				console.log(intersects[0].object.name);	
+                intersects[0].object.material.color.set(0xeeeeee);
 				console.log(intersects[0].distance);
 				console.log(intersects[0].point);
 			}
