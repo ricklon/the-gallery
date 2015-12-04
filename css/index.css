@@ -1,0 +1,16 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	font-size: 12px;
+}
+body {
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+	font-family: Arial, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+canvas {
+	width: 100%;
+	height: 100%;
+}
