@@ -33,7 +33,7 @@ else {
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
 
-			gal.scene.fog = new THREE.FogExp2(0x666666, 0.035);
+			gal.scene.fog = new THREE.FogExp2(0x666666, 0.025);
 			
 			gal.renderer.setSize(window.innerWidth, window.innerHeight);
 			gal.renderer.setClearColor(0xffffff, 1);
@@ -208,11 +208,11 @@ else {
             gal.floorText = THREE.ImageUtils.loadTexture("img/Floor.jpg");
             gal.floorText.wrapS = THREE.RepeatWrapping;
             gal.floorText.wrapT = THREE.RepeatWrapping;
-            gal.floorText.repeat.set(8,8);
+            gal.floorText.repeat.set(24,24);
 
             //Phong is for shiny surfaces
 			gal.floorMaterial = new THREE.MeshPhongMaterial( {map: gal.floorText } );
-			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(15,15), gal.floorMaterial);
+			gal.floor = new THREE.Mesh(new THREE.PlaneGeometry(45,45), gal.floorMaterial);
 
 			gal.floor.rotation.x = Math.PI/2;
             gal.floor.rotation.y = Math.PI;
@@ -222,26 +222,25 @@ else {
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			//gal.wallMaterial = new THREE.MeshBasicMaterial({color: 0xffeeff});
 			gal.wallMaterial1 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			gal.wallMaterial2 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial1);
-			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial2);
-			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(5,5), gal.wallMaterial3);
-			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.wallMaterial4);
+			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial1);
+			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial2);
+			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial3);
+			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial4);
 
-			gal.wall1.position.z = -2.5;
+			gal.wall1.position.z = -3;
 
-			gal.wall2.position.x = -7.5;
+			gal.wall2.position.x = -20;
 			gal.wall2.rotation.y = Math.PI/2;
 			
-			gal.wall3.position.x = 7.5;
+			gal.wall3.position.x = 20;
 			gal.wall3.rotation.y = -Math.PI/2;
 
-			gal.wall4.position.z = 2.5;
+			gal.wall4.position.z = 3;
 			gal.wall4.rotation.y = Math.PI;
 
 			gal.wall1.name = "longWall1";
@@ -253,7 +252,7 @@ else {
 			gal.wallGroup.add(gal.wall2);
 			gal.wallGroup.add(gal.wall3);
 			gal.wallGroup.add(gal.wall4);
-
+    
             gal.intersectObjects = [];
 
             gal.intersectObjects.push(gal.wall1);
@@ -261,21 +260,31 @@ else {
             gal.intersectObjects.push(gal.wall3);
             gal.intersectObjects.push(gal.wall4);
 
-			gal.wallGroup.position.y = 2.5;
+			gal.wallGroup.position.y = 3;
 
 			//Ceiling//
-			gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
-			gal.ceil = new THREE.Mesh(new THREE.PlaneGeometry(15,5), gal.ceilMaterial);
-			gal.ceil.position.y = 5;
+			//gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
+			gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0xeeeeee});
+			gal.ceil = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.ceilMaterial);
+			gal.ceil.position.y = 6;
 			gal.ceil.rotation.x = Math.PI/2;
 
 			gal.scene.add(gal.ceil);
 
 			///////Add Artworks~///////
 			gal.artGroup = new THREE.Group();
+           
+            /*
+            gal.intersectObjects = [];
+
+            gal.intersectObjects.push(gal.wall1);
+            gal.intersectObjects.push(gal.wall2);
+            gal.intersectObjects.push(gal.wall3);
+            gal.intersectObjects.push(gal.wall4);
+            */
 
 			//*
-			gal.num_of_paintings = 1;
+			gal.num_of_paintings = 30;
 			gal.paintings = [];
 			for(var i = 0; i < gal.num_of_paintings; i++){
 				(function(index) {
@@ -297,17 +306,18 @@ else {
 						// plane for artwork
 						var plane = new THREE.Mesh(new THREE.PlaneGeometry(ratiow, ratioh),img); //width, height
 						plane.overdraw = true;
-						if(index <= Math.floor(gal.num_of_paintings/2))
+                        //-1 because index is 0 - n-1 but num of paintings is n 
+						if(index <= Math.floor(gal.num_of_paintings/2)-1) //bottom half
 						{
-							plane.rotation.z = Math.PI/2;
-                            plane.position.set(0,2,-2.45);
+							//plane.rotation.z = Math.PI/2;
+                            plane.position.set(2.5 * index - 17.5,2,-2.96); //y and z kept constant
 						}
 						else
 						{
-							plane.rotation.z = Math.PI/2;
-                            plane.position.set(0,0,0);
+							//plane.rotation.z = Math.PI/2;
+                            plane.position.set(2.5 * index - 55 ,2 ,2.96);
 						//	plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
-						//	plane.rotation.y = Math.PI;
+							plane.rotation.y = Math.PI;
 						}
 						gal.scene.add(plane);
 					}
@@ -376,8 +386,8 @@ else {
 			//calculate objects interesting ray
 			var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
 			if(intersects.length !== 0) {
-                intersects[0].object.material.color.set(0xeeeeee);
-				console.log(intersects[0].distance);
+                //intersects[0].object.material.color.set(0xaaeeee);
+				//console.log(intersects[0].distance);
 				console.log(intersects[0].point);
 			}
 

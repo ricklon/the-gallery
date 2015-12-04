@@ -29,7 +29,7 @@ if len(sys.argv) <= 1:
     sys.exit()
 search_term = sys.argv[1] #put search term here. Replace spaces with +: Vincent+Van+Gogh. Not case sensitive
 image_toggle = '&amp;ao=on&amp;noqs=true' #show only artwork with images. Default is true
-collections_url = root_url + '/search?ft=' + search_term + image_toggle + '&rpp=30&pg='
+collections_url = root_url + '/search?ft=' + search_term + image_toggle + '&rpp=60&pg='
 
 
 image_count = 0
