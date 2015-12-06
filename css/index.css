@@ -3,11 +3,30 @@ html, body {
 	height: 100%;
 	font-size: 12px;
 }
+
+* {
+	vertical-align: top;
+}
+
 body {
 	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
 	font-family: Arial, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+.hide {
+	display: none;
+}
+
+#menu {
+	position: absolute;
+	left: 2em;
+	top: 1em;
+
+	padding: .5em;
+	background-color: #aaa;
+	opacity: .5;
 }
 
 canvas {

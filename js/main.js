@@ -43,6 +43,9 @@ else {
 			gal.canvas = document.querySelector('canvas');
 			gal.canvas.className = "gallery";
 
+			//enabling/disabling menu based on pointer controls
+			gal.menu = document.getElementById("menu");
+
 			//only when pointer is locked will translation controls be allowed: gal.controls.enabled
 			gal.moveVelocity = new THREE.Vector3();
 			gal.jump = true;
@@ -116,12 +119,16 @@ else {
 			if(document.pointerLockElement === gal.canvas || document.mozPointerLockElement === gal.canvas || document.webkitPointerLockElement === gal.canvas) {
 				//pointer is disabled by element
 				gal.controls.enabled = true;
+				//remove menu element from screen
+				gal.menu.className += " hide";
 				//start mouse move listener
 				document.addEventListener("mousemove", gal.moveCallback, false);
 				
 			} else {
 				//pointer is no longer disabled
 				gal.controls.enabled = false;
+				//remove hidden property from menu
+				gal.menu.className = gal.menu.className.replace(/(?:^|\s)hide(?!\S)/g, '');
 				document.removeEventListener("mousemove", gal.moveCallback, false);
 			}
 		},
