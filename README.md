@@ -1,42 +1,45 @@
-theGallery
+Gallery
 ===========
 Online automated art gallery based on your search input.
 
-There is now a working prototype currently being hosted at owlsketch.github.io/the-gallery
-
-Want an automatically created gallery of your favorite artist?
+There is now a functional alpha version currently being hosted at owlsketch.github.io/the-gallery
 
 This program is based on two programs. A python web scraper, that gets the images of your favorite artist from http://www.metmuseum.org/collection/the-collection-online, and a webGL/ThreeJs application that dynamically makes your own art gallery.
 
-![Alt text](https://github.com/satimidus/the-gallery/blob/master/img/screenshot.png "ARTSY PROGRAMMING")
+![Alt text](https://cloud.githubusercontent.com/assets/5739127/11604668/98074df6-9abd-11e5-8efd-8badf16d294d.png "Gallery Image")
 
 
-#UPDATE
-Now working on beta version that will rebuild the system but implements certain imperative functions. 
+#Current Release
+##v0.1-alpha.1
 
-TODO:
+In this first release the following has been implemented:
 
-Structure:
+1. Python Web Scraper for the Metropolitan Open Collection
+	* Instantiate json files for every painting
+2. Three.js/WebGL Gallery environment
 
-		---> gallery application.
+3. Artwork has been loaded into the environment
 
-			---> painting selection ---> displays information on painting
-			
+4. Controls (W,A,S,D, and Spacebar), Pointer Lock (Camera pitch and yaw), and Fullscreen (F key) actions
+
+#Next Release
+##v0.1-alpha.2
+
+The implementations (in order of priority) for the next release will be:
+
+1. Menu for pause screen and rendering pause
+
+2. Ray Cast selection of individual paintings
+
+3. Player object collision against walls and other objects
+
+4. Imported 3D objects successfully loaded
+
+# Structure 
+App structure is as follows:
+
+		---> gallery application menu
+			---> enter scene --> painting selection ---> displays information on painting
 			---> search input for different artists ---> new gallery application
 
-
-Scraping source: Currently using a python web scraper, needs to be called as a script. Other sources besides Metropolitan museum?
-    Information is stored in .json files.
-
-Controls: Simple controls are implemented. Need a toggle for anti-alias. Need a method for selecting paintings. Append search bar.
-
-Main Menu: Add search bar for selecting painters. Credits at the bottom and thanks. Links to github/twitter/etc at bottom.
-	While waiting, camera should pan around the scene in the background.
-
-Paintings: Currently static objects that do not permit interaction. Instead need to permit interactivity by hovering
-	or clicking in order to display NYTIMES articles. Need to have the correct proportions for all the paintings. 
-	Currently, paintings have a uniform base width, presenting all paintings as having relatively the same size. 
-	Need to create a ratio instead.
-
-VR: append google script for use with virtual reality. 
 
